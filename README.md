@@ -194,7 +194,7 @@ CREATE TABLE playlist_items (
 
 ## 🚀 部署方式
 
-### 使用 Docker Compose
+### 方式一：本機開發部署
 ```bash
 # 啟動服務
 docker-compose up -d
@@ -205,6 +205,43 @@ docker-compose down
 # 查看日誌
 docker-compose logs -f
 ```
+
+### 方式二：Docker Hub 部署
+如果您想要分享或部署預建好的映像檔：
+
+#### 推送至 Docker Hub
+1. 編輯推送腳本，將 `your-username` 替換為您的 Docker Hub 用戶名：
+   ```bash
+   # Windows
+   notepad push-to-dockerhub.bat
+
+   # Linux/Mac
+   nano push-to-dockerhub.sh
+   ```
+
+2. 執行推送腳本：
+   ```bash
+   # Windows
+   push-to-dockerhub.bat
+
+   # Linux/Mac
+   chmod +x push-to-dockerhub.sh
+   ./push-to-dockerhub.sh
+   ```
+
+#### 從 Docker Hub 部署
+其他用戶可以使用您的映像檔快速部署：
+
+1. 下載 docker-compose.hub.yml 檔案
+2. 將檔案中的 `your-username` 替換為實際的 Docker Hub 用戶名
+3. 建立必要目錄：
+   ```bash
+   mkdir -p database uploads/media uploads/thumbnails
+   ```
+4. 啟動服務：
+   ```bash
+   docker-compose -f docker-compose.hub.yml up -d
+   ```
 
 ### 系統需求
 - Docker 和 Docker Compose
