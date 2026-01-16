@@ -4,9 +4,26 @@ const { v4: uuidv4 } = require('uuid');
 const mime = require('mime-types');
 
 // 支援的檔案類型
-const SUPPORTED_IMAGES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-const SUPPORTED_VIDEOS = ['video/mp4', 'video/webm', 'video/avi'];
-const SUPPORTED_AUDIOS = ['audio/mp3', 'audio/wav', 'audio/ogg'];
+const SUPPORTED_IMAGES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
+const SUPPORTED_VIDEOS = [
+  'video/mp4',
+  'video/webm',
+  'video/avi',
+  'video/x-msvideo',
+  'video/quicktime',      // iPhone MOV
+  'video/x-matroska',     // MKV
+  'video/3gpp',           // 3GP
+  'video/x-m4v',          // M4V
+];
+const SUPPORTED_AUDIOS = [
+  'audio/mp3',
+  'audio/mpeg',           // MP3 標準 MIME
+  'audio/wav',
+  'audio/ogg',
+  'audio/aac',
+  'audio/x-m4a',          // M4A
+  'audio/mp4',            // M4A
+];
 
 const SUPPORTED_MIME_TYPES = [
   ...SUPPORTED_IMAGES,
