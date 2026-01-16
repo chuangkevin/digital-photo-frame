@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="數位相框系統 - 智能媒體展示與管理" />
+
+    <!-- PWA 支援 -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- 觸控優化 -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- 預載關鍵資源 -->
+    <link rel="preconnect" href="http://localhost:3001">
+
+    <title>數位相框</title>
+  </head>
+  <body class="bg-black text-white overflow-hidden">
+    <noscript>您需要啟用 JavaScript 來執行此應用程式。</noscript>
+    <div id="root" class="w-full h-screen"></div>
+
+    <!-- 載入提示 -->
+    <div id="loading" class="fixed inset-0 bg-black flex items-center justify-center z-50">
+      <div class="text-white text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+        <p class="text-lg">載入中...</p>
+      </div>
+    </div>
+
+    <script>
+      // 隱藏載入畫面
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loading = document.getElementById('loading');
+          if (loading) {
+            loading.style.display = 'none';
+          }
+        }, 100);
+      });
+    </script>
+  </body>
+</html>

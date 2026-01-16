@@ -1,0 +1,228 @@
+const path = require('path');
+const fs = require('fs-extra');
+const { MediaFile } = require('../models');
+const { getFileType, deleteFile, getFileSize } = require('../utils/fileUtils');
+const { generateThumbnailByType } = require('../utils/imageUtils');
+const { asyncHandler } = require('../middleware/errorHandler');
+
+/**
+ * 上傳媒體檔案
+ */
+const uploadMedia = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({
+      error: '沒有檔案',
+      message: '請選擇要上傳的檔案'
+    });
+  }
+
+  const file = req.file;
+  const fileType = getFileType(file.mimetype);
+
+  try {
+    // 產生縮圖
+    const thumbnailsDir = process.env.UPLOAD_PATH ?
+      path.join(process.env.UPLOAD_PATH, '../thumbnails') :
+      './uploads/thumbnails';
+
+    await fs.ensureDir(thumbnailsDir);
+
+    const thumbnailFilename = `thumb_${file.filename}`;
+    const thumbnailPath = path.join(thumbnailsDir, thumbnailFilename);
+
+    await generateThumbnailByType(file.path, thumbnailPath, fileType);
+
+    // 儲存到資料庫
+    const mediaFile = await MediaFile.create({
+      filename: file.filename,
+      originalName: file.originalname,
+      filePath: file.path,
+      thumbnailPath: thumbnailPath,
+      fileType: fileType,
+      mimeType: file.mimetype,
+      fileSize: file.size,
+      tags: req.body.tags || null,
+    });
+
+    res.status(201).json({
+      message: '檔案上傳成功',
+      data: mediaFile
+    });
+
+  } catch (error) {
+    // 如果資料庫操作失敗，清理已上傳的檔案
+    await deleteFile(file.path);
+    throw error;
+  }
+});
+
+/**
+ * 取得媒體檔案列表
+ */
+const getMediaList = asyncHandler(async (req, res) => {
+  const {
+    page = 1,
+    limit = 20,
+    fileType,
+    search
+  } = req.query;
+
+  const offset = (page - 1) * limit;
+  const where = { isActive: true };
+
+  // 檔案類型篩選
+  if (fileType && ['image', 'video', 'audio'].includes(fileType)) {
+    where.fileType = fileType;
+  }
+
+  // 搜尋功能
+  if (search) {
+    const { Op } = require('sequelize');
+    where[Op.or] = [
+      { originalName: { [Op.like]: `%${search}%` } },
+      { tags: { [Op.like]: `%${search}%` } }
+    ];
+  }
+
+  const { rows: mediaFiles, count } = await MediaFile.findAndCountAll({
+    where,
+    order: [['uploadTime', 'DESC']],
+    limit: parseInt(limit),
+    offset: parseInt(offset),
+  });
+
+  res.json({
+    data: mediaFiles,
+    pagination: {
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(count / limit),
+      totalItems: count,
+      itemsPerPage: parseInt(limit)
+    }
+  });
+});
+
+/**
+ * 取得單一媒體檔案資訊
+ */
+const getMediaById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const mediaFile = await MediaFile.findOne({
+    where: { id, isActive: true }
+  });
+
+  if (!mediaFile) {
+    return res.status(404).json({
+      error: '檔案未找到',
+      message: '指定的媒體檔案不存在'
+    });
+  }
+
+  res.json({ data: mediaFile });
+});
+
+/**
+ * 更新媒體檔案資訊
+ */
+const updateMedia = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { tags } = req.body;
+
+  const mediaFile = await MediaFile.findOne({
+    where: { id, isActive: true }
+  });
+
+  if (!mediaFile) {
+    return res.status(404).json({
+      error: '檔案未找到',
+      message: '指定的媒體檔案不存在'
+    });
+  }
+
+  await mediaFile.update({ tags });
+
+  res.json({
+    message: '檔案資訊更新成功',
+    data: mediaFile
+  });
+});
+
+/**
+ * 刪除媒體檔案
+ */
+const deleteMedia = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const mediaFile = await MediaFile.findOne({
+    where: { id, isActive: true }
+  });
+
+  if (!mediaFile) {
+    return res.status(404).json({
+      error: '檔案未找到',
+      message: '指定的媒體檔案不存在'
+    });
+  }
+
+  // 軟刪除（標記為非活躍）
+  await mediaFile.update({ isActive: false });
+
+  // 實際刪除檔案
+  await deleteFile(mediaFile.filePath);
+  if (mediaFile.thumbnailPath) {
+    await deleteFile(mediaFile.thumbnailPath);
+  }
+
+  res.json({
+    message: '檔案刪除成功'
+  });
+});
+
+/**
+ * 取得媒體檔案（用於前端顯示）
+ */
+const serveMedia = asyncHandler(async (req, res) => {
+  const { filename } = req.params;
+
+  const mediaFile = await MediaFile.findOne({
+    where: { filename, isActive: true }
+  });
+
+  if (!mediaFile) {
+    return res.status(404).json({
+      error: '檔案未找到'
+    });
+  }
+
+  res.sendFile(path.resolve(mediaFile.filePath));
+});
+
+/**
+ * 取得縮圖檔案
+ */
+const serveThumbnail = asyncHandler(async (req, res) => {
+  const { filename } = req.params;
+
+  const mediaFile = await MediaFile.findOne({
+    where: { filename, isActive: true }
+  });
+
+  if (!mediaFile || !mediaFile.thumbnailPath) {
+    return res.status(404).json({
+      error: '縮圖未找到'
+    });
+  }
+
+  res.sendFile(path.resolve(mediaFile.thumbnailPath));
+});
+
+module.exports = {
+  uploadMedia,
+  getMediaList,
+  getMediaById,
+  updateMedia,
+  deleteMedia,
+  serveMedia,
+  serveThumbnail,
+};
