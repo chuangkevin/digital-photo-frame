@@ -41,11 +41,9 @@ app.use(helmet({
 // 壓縮中介軟體
 app.use(compression());
 
-// CORS 設定
+// CORS 設定 - 允許所有來源（本地網路應用）
 app.use(cors({
-  origin: NODE_ENV === 'production' ?
-    ['http://localhost:3000'] : // 生產環境限制來源
-    true, // 開發環境允許所有來源
+  origin: true, // 允許所有來源
   credentials: true
 }));
 
