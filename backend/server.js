@@ -47,25 +47,27 @@ app.use(cors({
   credentials: true
 }));
 
-// 請求限制
+// 請求限制 (開發環境下禁用)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 分鐘
-  max: NODE_ENV === 'production' ? 100 : 1000, // 生產環境更嚴格的限制
+  max: NODE_ENV === 'production' ? 100 : 0, // 0 = 不限制
   message: {
     error: '請求過於頻繁',
     message: '請稍後再試'
-  }
+  },
+  skip: () => NODE_ENV !== 'production' // 開發環境跳過限制
 });
 app.use('/api', limiter);
 
-// 檔案上傳限制
+// 檔案上傳限制 (開發環境下禁用)
 const uploadLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 分鐘
-  max: NODE_ENV === 'production' ? 5 : 20,
+  max: NODE_ENV === 'production' ? 5 : 0,
   message: {
     error: '上傳過於頻繁',
     message: '請稍後再試'
-  }
+  },
+  skip: () => NODE_ENV !== 'production'
 });
 app.use('/api/media/upload', uploadLimiter);
 

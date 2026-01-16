@@ -26,17 +26,12 @@ if [ $? -ne 0 ]; then
 fi
 
 echo
-echo "Building images..."
-docker-compose build
+echo "Building images using docker-compose.hub.yml..."
+docker-compose -f docker-compose.hub.yml build
 if [ $? -ne 0 ]; then
     echo "ERROR: Docker build failed!"
     exit 1
 fi
-
-echo
-echo "Tagging images for Docker Hub..."
-docker tag digital-photo-frame-frontend:latest $DOCKERHUB_USERNAME/digital-photo-frame-frontend:$VERSION
-docker tag digital-photo-frame-backend:latest $DOCKERHUB_USERNAME/digital-photo-frame-backend:$VERSION
 
 echo
 echo "Pushing frontend image..."

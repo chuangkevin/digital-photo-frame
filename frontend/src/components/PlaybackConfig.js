@@ -395,10 +395,11 @@ function PlaybackConfig() {
 
   const { configs, loading: configsLoading } = state.playback;
 
-  // 載入配置列表
+  // 載入配置列表 (只在組件掛載時執行一次)
   useEffect(() => {
     actions.loadPlaybackConfigs();
-  }, [actions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 處理配置儲存
   const handleConfigSave = useCallback(async (savedConfig) => {

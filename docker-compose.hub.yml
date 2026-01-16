@@ -1,32 +1,30 @@
 services:
   frontend:
     image: kevin950805/digital-photo-frame-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "4123:3000"
+      - "4123:80"
     environment:
-      - REACT_APP_API_URL=http://localhost:3001
+      - REACT_APP_API_URL=http://backend:3001
     depends_on:
       - backend
-    stdin_open: true
-    tty: true
 
   backend:
     image: kevin950805/digital-photo-frame-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "3001:3001"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - DB_PATH=/app/data/database.sqlite
       - UPLOAD_PATH=/app/uploads
     volumes:
       - ./database:/app/data
       - ./uploads:/app/uploads
-    stdin_open: true
-    tty: true
-
-volumes:
-  database_data:
-  uploads_data:
 
 networks:
   default:

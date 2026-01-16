@@ -110,7 +110,7 @@ function MediaDisplay({
           transition={{ duration: 0.3 }}
           autoPlay
           loop={config?.videoLoop}
-          muted={false}
+          muted
           playsInline
           onLoadedData={onLoad}
           onError={onError}

@@ -111,10 +111,11 @@ function AdminPage() {
   const [activeTab, setActiveTab] = useState('media'); // 'media', 'upload', 'playback', 'status'
   const [selectedMedia, setSelectedMedia] = useState([]);
 
-  // 載入媒體列表
+  // 載入媒體列表 (只在組件掛載時執行一次)
   useEffect(() => {
     actions.loadMediaList();
-  }, [actions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 處理檔案上傳完成
   const handleUploadComplete = useCallback((uploadedFile) => {

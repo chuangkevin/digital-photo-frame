@@ -32,10 +32,19 @@ const uploadMedia = asyncHandler(async (req, res) => {
 
     await generateThumbnailByType(file.path, thumbnailPath, fileType);
 
+    // 解碼檔案名稱 (處理 UTF-8 編碼問題)
+    let decodedOriginalName;
+    try {
+      // 嘗試將 Latin-1 編碼的字串轉換為 UTF-8
+      decodedOriginalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+    } catch (e) {
+      decodedOriginalName = file.originalname;
+    }
+
     // 儲存到資料庫
     const mediaFile = await MediaFile.create({
       filename: file.filename,
-      originalName: file.originalname,
+      originalName: decodedOriginalName,
       filePath: file.path,
       thumbnailPath: thumbnailPath,
       fileType: fileType,

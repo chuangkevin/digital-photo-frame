@@ -7,7 +7,16 @@
       "Bash(docker-compose ps:*)",
       "Bash(docker-compose logs:*)",
       "Bash(docker-compose up:*)",
-      "Bash(docker-compose down:*)"
+      "Bash(docker-compose down:*)",
+      "Bash(npm install:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker run:*)",
+      "Bash(curl:*)",
+      "Bash(docker port:*)",
+      "Bash(curl.exe:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker-compose restart:*)"
     ]
   }
 }

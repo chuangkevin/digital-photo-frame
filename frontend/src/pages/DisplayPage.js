@@ -75,12 +75,21 @@ function DisplayPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [actions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // 初始化載入
+  // 初始化載入 (只在組件掛載時執行一次)
   useEffect(() => {
+    // 添加 display-mode class 以禁用滾動
+    document.body.classList.add('display-mode');
     loadData();
-  }, [loadData]);
+
+    return () => {
+      // 離開時移除 class
+      document.body.classList.remove('display-mode');
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 錯誤重試
   const handleRetry = useCallback(() => {
@@ -212,7 +221,8 @@ function DisplayPage() {
   return (
     <div
       ref={touchRef}
-      className="w-full h-screen bg-black relative overflow-hidden select-none"
+      onClick={() => actions.showControls()}
+      className="w-full h-screen bg-black relative overflow-hidden select-none cursor-pointer"
     >
       {/* 主要媒體顯示區域 */}
       <AnimatePresence mode="wait">

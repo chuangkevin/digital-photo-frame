@@ -5,7 +5,12 @@
 /* 全域樣式 */
 @layer base {
   html, body {
-    @apply h-full overflow-hidden;
+    @apply h-full;
+  }
+
+  /* 展示頁面使用 overflow-hidden，管理頁面允許滾動 */
+  body.display-mode {
+    @apply overflow-hidden;
   }
 
   #root {

@@ -1,4 +1,4 @@
-const { sequelize } = require('../config/database');
+const { sequelize, testConnection } = require('../config/database');
 const MediaFileModel = require('./MediaFile');
 const PlaybackConfigModel = require('./PlaybackConfig');
 const PlaylistItemModel = require('./PlaylistItem');
@@ -35,6 +35,7 @@ const syncDatabase = async (force = false) => {
 
 module.exports = {
   sequelize,
+  testConnection,
   models,
   syncDatabase,
   MediaFile,
