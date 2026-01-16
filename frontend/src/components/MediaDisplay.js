@@ -21,6 +21,18 @@ function MediaDisplay({
   useEffect(() => {
     setImageLoaded(false);
     setHasError(false);
+
+    // 處理已快取圖片（特別是行動裝置）
+    // 有時快取圖片不會觸發 onLoad 事件
+    if (media?.fileType === 'image') {
+      const checkImageLoaded = setTimeout(() => {
+        const img = document.querySelector(`img[alt="${media.originalName}"]`);
+        if (img && img.complete && img.naturalHeight !== 0) {
+          setImageLoaded(true);
+        }
+      }, 100);
+      return () => clearTimeout(checkImageLoaded);
+    }
   }, [media]);
 
   if (!media) {
@@ -39,7 +51,8 @@ function MediaDisplay({
     );
   }
 
-  const mediaUrl = `${getApiBaseUrl()}/api/files/${media.filename}`;
+  // 添加時間戳避免行動裝置快取問題
+  const mediaUrl = `${getApiBaseUrl()}/api/files/${media.filename}?t=${media.id}`;
 
   // 圖片顯示
   if (media.fileType === 'image') {
