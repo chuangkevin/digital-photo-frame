@@ -75,6 +75,11 @@ if (process.env.NODE_ENV === 'development') {
     reloadApp: () => {
       window.location.reload();
     },
-    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:3001',
+    getApiUrl: () => {
+      if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+        return window.location.origin.replace(':4123', ':3001');
+      }
+      return process.env.REACT_APP_API_URL || 'http://localhost:3001';
+    },
   };
 }

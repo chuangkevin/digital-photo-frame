@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getApiBaseUrl } from '../services/api';
 
 /**
  * 媒體顯示組件
@@ -38,7 +39,7 @@ function MediaDisplay({
     );
   }
 
-  const mediaUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/files/${media.filename}`;
+  const mediaUrl = `${getApiBaseUrl()}/api/files/${media.filename}`;
 
   // 圖片顯示
   if (media.fileType === 'image') {

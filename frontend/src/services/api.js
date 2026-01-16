@@ -1,7 +1,20 @@
 import axios from 'axios';
 
-// API 基本配置
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+// API 基本配置 - 動態偵測後端地址
+const getApiBaseUrl = () => {
+  // 如果是生產環境，根據當前訪問地址動態決定 API URL
+  if (process.env.NODE_ENV === 'production') {
+    // 將前端 port (4123) 替換為後端 port (3001)
+    return window.location.origin.replace(':4123', ':3001');
+  }
+  // 開發環境使用環境變數或預設值
+  return process.env.REACT_APP_API_URL || 'http://localhost:3001';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+// 導出給其他模組使用
+export { getApiBaseUrl, API_BASE_URL };
 
 // 建立 axios 實例
 const api = axios.create({

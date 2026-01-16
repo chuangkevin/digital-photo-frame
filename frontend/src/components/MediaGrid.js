@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mediaAPI } from '../services/api';
+import { mediaAPI, getApiBaseUrl } from '../services/api';
 import { useApp } from '../contexts/AppContext';
 
 /**
@@ -10,7 +10,7 @@ function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false 
   const [imageError, setImageError] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const thumbnailUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/thumbnails/${media.filename}`;
+  const thumbnailUrl = `${getApiBaseUrl()}/api/thumbnails/${media.filename}`;
 
   const handleDelete = useCallback(async () => {
     try {

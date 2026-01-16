@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../contexts/AppContext';
+import { getApiBaseUrl } from '../services/api';
 
 /**
  * 媒體播放器 Hook
@@ -154,14 +155,14 @@ export function useMediaPlayer() {
     if (!currentMedia) return null;
 
     // 這裡可以根據需要添加基礎 URL
-    return `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/files/${currentMedia.filename}`;
+    return `${getApiBaseUrl()}/api/files/${currentMedia.filename}`;
   }, [currentMedia]);
 
   // 返回縮圖 URL
   const getThumbnailUrl = useCallback(() => {
     if (!currentMedia) return null;
 
-    return `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/thumbnails/${currentMedia.filename}`;
+    return `${getApiBaseUrl()}/api/thumbnails/${currentMedia.filename}`;
   }, [currentMedia]);
 
   return {
