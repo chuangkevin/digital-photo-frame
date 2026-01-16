@@ -4,6 +4,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
     ports:
       - "4123:80"
     environment:
@@ -16,6 +19,9 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
     ports:
       - "3001:3001"
     environment:
