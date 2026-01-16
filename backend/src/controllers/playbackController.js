@@ -1,5 +1,6 @@
 const { PlaybackConfig, PlaylistItem, MediaFile } = require('../models');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { emitToDisplay, emitToAll, SocketEvents } = require('../services/socketService');
 
 /**
  * 取得所有播放配置
@@ -90,6 +91,9 @@ const createPlaybackConfig = asyncHandler(async (req, res) => {
     isActive: false
   });
 
+  // 廣播配置建立事件
+  emitToAll(SocketEvents.CONFIG_CREATED, { config });
+
   res.status(201).json({
     message: '播放配置建立成功',
     data: config
@@ -119,6 +123,9 @@ const updatePlaybackConfig = asyncHandler(async (req, res) => {
 
   await config.update(updateData);
 
+  // 廣播配置更新事件
+  emitToAll(SocketEvents.CONFIG_UPDATED, { config });
+
   res.json({
     message: '播放配置更新成功',
     data: config
@@ -141,6 +148,10 @@ const activatePlaybackConfig = asyncHandler(async (req, res) => {
   }
 
   await config.activate();
+
+  // 廣播配置啟用事件 - 通知展示頁面刷新
+  emitToDisplay(SocketEvents.CONFIG_ACTIVATED, { configId: id });
+  emitToDisplay(SocketEvents.REFRESH_DISPLAY, {});
 
   res.json({
     message: '播放配置已啟用',
@@ -177,6 +188,9 @@ const deletePlaybackConfig = asyncHandler(async (req, res) => {
 
   // 刪除配置
   await config.destroy();
+
+  // 廣播配置刪除事件
+  emitToAll(SocketEvents.CONFIG_DELETED, { configId: id });
 
   res.json({
     message: '播放配置刪除成功'

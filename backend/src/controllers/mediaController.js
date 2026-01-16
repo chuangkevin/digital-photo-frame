@@ -4,6 +4,7 @@ const { MediaFile } = require('../models');
 const { getFileType, deleteFile, getFileSize } = require('../utils/fileUtils');
 const { generateThumbnailByType } = require('../utils/imageUtils');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { emitToDisplay, emitToAll, SocketEvents } = require('../services/socketService');
 
 /**
  * 上傳媒體檔案
@@ -52,6 +53,11 @@ const uploadMedia = asyncHandler(async (req, res) => {
       fileSize: file.size,
       tags: req.body.tags || null,
     });
+
+    // 廣播媒體上傳事件
+    emitToAll(SocketEvents.MEDIA_UPLOADED, { media: mediaFile });
+    // 通知展示頁面刷新
+    emitToDisplay(SocketEvents.REFRESH_DISPLAY, {});
 
     res.status(201).json({
       message: '檔案上傳成功',
@@ -151,6 +157,11 @@ const updateMedia = asyncHandler(async (req, res) => {
 
   await mediaFile.update({ tags });
 
+  // 廣播媒體更新事件
+  emitToAll(SocketEvents.MEDIA_UPDATED, { media: mediaFile });
+  // 通知展示頁面刷新
+  emitToDisplay(SocketEvents.REFRESH_DISPLAY, {});
+
   res.json({
     message: '檔案資訊更新成功',
     data: mediaFile
@@ -182,6 +193,11 @@ const deleteMedia = asyncHandler(async (req, res) => {
   if (mediaFile.thumbnailPath) {
     await deleteFile(mediaFile.thumbnailPath);
   }
+
+  // 廣播媒體刪除事件
+  emitToAll(SocketEvents.MEDIA_DELETED, { mediaId: id });
+  // 通知展示頁面刷新
+  emitToDisplay(SocketEvents.REFRESH_DISPLAY, {});
 
   res.json({
     message: '檔案刪除成功'

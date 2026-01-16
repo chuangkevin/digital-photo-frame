@@ -6,6 +6,7 @@ import MediaControls from '../components/MediaControls';
 import { useApp } from '../contexts/AppContext';
 import useMediaPlayer from '../hooks/useMediaPlayer';
 import useTouch from '../hooks/useTouch';
+import { joinDisplayRoom, onSocketEvent, SocketEvents, disconnectSocket } from '../services/socketService';
 
 /**
  * 展示頁面 - 數位相框的主要顯示界面
@@ -87,6 +88,38 @@ function DisplayPage() {
     return () => {
       // 離開時移除 class
       document.body.classList.remove('display-mode');
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // WebSocket 連接 - 監聽即時更新
+  useEffect(() => {
+    // 加入展示頁面房間
+    joinDisplayRoom();
+
+    // 監聽刷新事件
+    const unsubscribeRefresh = onSocketEvent(SocketEvents.REFRESH_DISPLAY, () => {
+      console.log('📡 收到刷新通知，重新載入展示資料...');
+      loadData();
+    });
+
+    // 監聽配置啟用事件
+    const unsubscribeConfig = onSocketEvent(SocketEvents.CONFIG_ACTIVATED, (data) => {
+      console.log('📡 收到配置啟用通知:', data);
+      loadData();
+    });
+
+    // 監聯播放清單更新事件
+    const unsubscribePlaylist = onSocketEvent(SocketEvents.PLAYLIST_UPDATED, (data) => {
+      console.log('📡 收到播放清單更新通知:', data);
+      loadData();
+    });
+
+    return () => {
+      unsubscribeRefresh();
+      unsubscribeConfig();
+      unsubscribePlaylist();
+      disconnectSocket();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

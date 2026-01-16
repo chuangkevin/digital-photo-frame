@@ -1,10 +1,12 @@
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs-extra');
+const { initSocketService } = require('./src/services/socketService');
 
 // 環境變數設定
 require('dotenv').config();
@@ -121,8 +123,12 @@ async function startServer() {
     // 同步資料庫（不強制重建）
     await syncDatabase(false);
 
+    // 建立 HTTP 伺服器並初始化 Socket.IO
+    const server = http.createServer(app);
+    initSocketService(server);
+
     // 啟動伺服器
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log('🚀 數位相框後端服務已啟動');
       console.log(`📡 伺服器運行於: http://localhost:${PORT}`);
       console.log(`🌍 環境: ${NODE_ENV}`);

@@ -1,5 +1,6 @@
 const { PlaylistItem, MediaFile, PlaybackConfig } = require('../models');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { emitToDisplay, SocketEvents } = require('../services/socketService');
 
 /**
  * 取得指定配置的播放清單
@@ -95,6 +96,12 @@ const addToPlaylist = asyncHandler(async (req, res) => {
     }]
   });
 
+  // 如果是啟用中的配置，通知展示頁面刷新
+  if (config.isActive) {
+    emitToDisplay(SocketEvents.PLAYLIST_UPDATED, { configId });
+    emitToDisplay(SocketEvents.REFRESH_DISPLAY, {});
+  }
+
   res.status(201).json({
     message: '媒體已加入播放清單',
     data: createdItems
@@ -121,7 +128,16 @@ const removeFromPlaylist = asyncHandler(async (req, res) => {
     });
   }
 
+  // 檢查配置是否啟用中
+  const config = await PlaybackConfig.findByPk(configId);
+
   await playlistItem.destroy();
+
+  // 如果是啟用中的配置，通知展示頁面刷新
+  if (config && config.isActive) {
+    emitToDisplay(SocketEvents.PLAYLIST_UPDATED, { configId });
+    emitToDisplay(SocketEvents.REFRESH_DISPLAY, {});
+  }
 
   res.json({
     message: '已從播放清單移除'
@@ -178,6 +194,12 @@ const reorderPlaylist = asyncHandler(async (req, res) => {
     order: [['playOrder', 'ASC']]
   });
 
+  // 如果是啟用中的配置，通知展示頁面刷新
+  if (config.isActive) {
+    emitToDisplay(SocketEvents.PLAYLIST_UPDATED, { configId });
+    emitToDisplay(SocketEvents.REFRESH_DISPLAY, {});
+  }
+
   res.json({
     message: '播放清單排序更新成功',
     data: updatedPlaylist
@@ -202,6 +224,12 @@ const clearPlaylist = asyncHandler(async (req, res) => {
   await PlaylistItem.destroy({
     where: { configId }
   });
+
+  // 如果是啟用中的配置，通知展示頁面刷新
+  if (config.isActive) {
+    emitToDisplay(SocketEvents.PLAYLIST_UPDATED, { configId });
+    emitToDisplay(SocketEvents.REFRESH_DISPLAY, {});
+  }
 
   res.json({
     message: '播放清單已清空'
