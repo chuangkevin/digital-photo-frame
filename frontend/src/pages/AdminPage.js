@@ -222,7 +222,7 @@ function AdminPage() {
 
       <div className="flex">
         {/* 側邊欄 - 桌面版 */}
-        <nav className="hidden desktop:flex desktop:flex-col desktop:w-64 bg-white border-r border-gray-200">
+        <nav className="hidden lg:flex lg:flex-col lg:w-64 bg-white border-r border-gray-200">
           <div className="flex-1 pt-8 pb-4 px-4 space-y-2">
             {tabs.map((tab) => (
               <button
@@ -244,7 +244,7 @@ function AdminPage() {
         {/* 主要內容區域 */}
         <main className="flex-1 p-4 sm:p-6">
           {/* 行動版標籤切換 */}
-          <div className="desktop:hidden mb-6">
+          <div className="lg:hidden mb-6">
             <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-8 overflow-x-auto">
                 {tabs.map((tab) => (
