@@ -45,7 +45,11 @@ function DisplayPage() {
 
   // 處理觸控手勢
   const { touchRef } = useTouch({
-    onTap: () => {
+    onTap: (e) => {
+      // 如果點擊的目標是按鈕或在按鈕內，則不執行任何操作
+      if (e.target.closest('button')) {
+        return;
+      }
       actions.showControls();
     },
     onSwipeLeft: () => {

@@ -75,6 +75,7 @@ function MediaControls({
           {/* 播放控制 - 底部中央 */}
           {media && media.fileType !== 'image' && (
             <motion.div
+              onClick={(e) => e.stopPropagation()}
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
@@ -192,6 +193,7 @@ function MediaControls({
           {/* 圖片專用控制 */}
           {media && media.fileType === 'image' && (
             <motion.div
+              onClick={(e) => e.stopPropagation()}
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
