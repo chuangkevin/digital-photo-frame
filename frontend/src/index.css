@@ -23,7 +23,6 @@
 
   /* 觸控優化 */
   button, [role="button"] {
-    @apply min-h-touch-target min-w-touch-target;
     -webkit-tap-highlight-color: transparent;
   }
 

@@ -50,16 +50,21 @@ export function useTouch({
     if (!touchStart.current) return;
 
     const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStart.current.x;
+    const deltaY = touch.clientY - touchStart.current.y;
+
+    // 如果是滑動，阻止預設行為 (如頁面滾動)
+    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+      e.preventDefault();
+    }
+
     touchEnd.current = {
       x: touch.clientX,
       y: touch.clientY,
     };
 
     // 如果移動超過閾值，取消長按
-    const deltaX = Math.abs(touchEnd.current.x - touchStart.current.x);
-    const deltaY = Math.abs(touchEnd.current.y - touchStart.current.y);
-
-    if (deltaX > threshold || deltaY > threshold) {
+    if (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold) {
       clearLongPressTimer();
     }
   }, [threshold, clearLongPressTimer]);
@@ -126,11 +131,6 @@ export function useTouch({
     element.addEventListener('touchstart', handleTouchStart, { passive: false });
     element.addEventListener('touchmove', handleTouchMove, { passive: false });
     element.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-    // 防止預設行為
-    element.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-    });
 
     return () => {
       element.removeEventListener('touchstart', handleTouchStart);
