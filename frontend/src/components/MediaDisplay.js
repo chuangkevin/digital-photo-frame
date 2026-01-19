@@ -8,6 +8,7 @@ import { getApiBaseUrl } from '../services/api';
 function MediaDisplay({
   media,
   config,
+  isMuted,
   onLoad,
   onError,
   onEnded,
@@ -123,7 +124,7 @@ function MediaDisplay({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
           autoPlay
-          muted
+          muted={isMuted}
           playsInline
           onLoadedData={onLoad}
           onError={onError}
@@ -170,6 +171,7 @@ function MediaDisplay({
             ref={mediaRef}
             src={mediaUrl}
             autoPlay
+            muted={isMuted}
             onLoadedData={onLoad}
             onError={onError}
             onEnded={onEnded}

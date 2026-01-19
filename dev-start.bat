@@ -1,38 +1,17 @@
 @echo off
-
-echo Development Start - Digital Photo Frame
-echo =====================================
-
-:: Check if we're in the right directory
-if not exist "docker-compose.yml" (
-    echo ERROR: docker-compose.yml not found!
-    echo Please run this script from the project root directory.
-    pause
-    exit /b 1
-)
-
-:: Check Docker
-docker --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ERROR: Docker is not installed or not running.
-    echo Please install Docker Desktop and make sure it's running.
-    pause
-    exit /b 1
-)
-
-:: Create .env if not exists
-if not exist .env (
-    echo Creating .env file from template...
-    copy .env.example .env
-)
-
-:: Start the services
+echo Starting LOCAL DEVELOPMENT servers for Windows...
+echo =============================================
 echo.
-echo Starting services...
-echo.
-docker-compose up --build
 
-:: This will keep running until Ctrl+C
+echo Installing dependencies and starting Backend Server (nodemon)...
+echo Visit http://localhost:3001
+start "Backend Dev Server" cmd /c "cd backend && npm install && npm run dev"
+
 echo.
-echo Services stopped.
+echo Installing dependencies and starting Frontend Server (React)...
+echo Visit http://localhost:3000
+start "Frontend Dev Server" cmd /c "cd frontend && npm install && npm start"
+
+echo.
+echo Both servers are starting in new windows.
 pause

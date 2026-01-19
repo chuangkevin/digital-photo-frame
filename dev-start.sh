@@ -1,34 +1,33 @@
 #!/bin/bash
 
-echo "Development Start - Digital Photo Frame"
-echo "======================================"
-
-# Check if we're in the right directory
-if [ ! -f "docker-compose.yml" ]; then
-    echo "ERROR: docker-compose.yml not found!"
-    echo "Please run this script from the project root directory."
-    exit 1
-fi
-
-# Check Docker
-if ! command -v docker &> /dev/null; then
-    echo "ERROR: Docker is not installed or not running."
-    echo "Please install Docker and make sure it's running."
-    exit 1
-fi
-
-# Create .env if not exists
-if [ ! -f .env ]; then
-    echo "Creating .env file from template..."
-    cp .env.example .env
-fi
-
-# Start the services
+echo "Starting LOCAL DEVELOPMENT servers..."
+echo "==================================="
 echo ""
-echo "Starting services..."
-echo ""
-docker-compose up --build
 
-# This will keep running until Ctrl+C
+# Function to kill processes on exit
+cleanup() {
+    echo ""
+    echo "Stopping servers..."
+    # Kill all processes in the process group
+    kill 0
+}
+
+# Trap Ctrl+C and other signals
+trap cleanup SIGINT SIGTERM EXIT
+
+echo "Installing dependencies and starting Backend Server (nodemon)..."
+echo "Visit http://localhost:3001"
+(cd backend && npm install && npm run dev) &
 echo ""
-echo "Services stopped."
+
+echo "Installing dependencies and starting Frontend Server (React)..."
+echo "Visit http://localhost:3000"
+(cd frontend && npm install && npm start) &
+echo ""
+
+echo "Both servers are starting in the background."
+echo "Press Ctrl+C to stop both servers."
+echo ""
+
+# Wait for any background process to exit
+wait -n

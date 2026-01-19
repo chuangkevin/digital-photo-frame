@@ -41,6 +41,8 @@ function DisplayPage() {
     hasPrevious,
     isPlaying,
     progress,
+    isMuted,
+    toggleMute,
   } = useMediaPlayer();
 
   // 處理觸控手勢
@@ -267,6 +269,7 @@ function DisplayPage() {
           key={currentMedia?.id || 'no-media'}
           media={currentMedia}
           config={currentConfig}
+          isMuted={isMuted}
           onLoad={handleMediaLoadComplete}
           onError={handleMediaErrorOccurred}
           onEnded={handleMediaEnded}
@@ -281,6 +284,7 @@ function DisplayPage() {
         show={state.display.showControls}
         media={currentMedia}
         isPlaying={isPlaying}
+        isMuted={isMuted}
         currentTime={currentTime}
         duration={duration}
         progress={progress}
@@ -289,6 +293,7 @@ function DisplayPage() {
         onNext={playNext}
         onSeek={seekTo}
         onVolumeChange={handleVolumeChange}
+        onToggleMute={toggleMute}
         onAdminClick={goToAdmin}
         hasNext={hasNext}
         hasPrevious={hasPrevious}

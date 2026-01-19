@@ -11,6 +11,7 @@ export function useMediaPlayer() {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [error, setError] = useState(null);
+  const [isMuted, setIsMuted] = useState(true); // 新增: 靜音狀態，預設為 true
 
   const mediaRef = useRef(null);
   const imageTimerRef = useRef(null);
@@ -90,6 +91,11 @@ export function useMediaPlayer() {
       mediaRef.current.pause();
     }
   }, [currentMedia, advanceToNext]);
+
+  // 新增: 切換靜音狀態
+  const toggleMute = useCallback(() => {
+    setIsMuted(prev => !prev);
+  }, []);
   
   // 主要播放邏輯: 根據媒體類型設定計時器或依賴 onEnded 事件
   useEffect(() => {
@@ -137,8 +143,11 @@ export function useMediaPlayer() {
   const setVolume = useCallback((volume) => {
     if (mediaRef.current && currentMedia?.fileType !== 'image') {
       mediaRef.current.volume = Math.max(0, Math.min(1, volume));
+      if (volume > 0 && isMuted) {
+        setIsMuted(false);
+      }
     }
-  }, [currentMedia]);
+  }, [currentMedia, isMuted]);
 
   // 重置播放狀態
   const resetPlayer = useCallback(() => {
@@ -176,11 +185,13 @@ export function useMediaPlayer() {
     duration,
     currentTime,
     error,
+    isMuted, // 導出 isMuted
 
     // 控制方法
     playNext: advanceToNext,
     playPrevious,
     togglePlayPause,
+    toggleMute, // 導出 toggleMute
     seekTo,
     setVolume,
     resetPlayer,
