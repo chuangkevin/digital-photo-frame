@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getApiBaseUrl } from '../services/api';
+import { getSmartVideoRotationClass } from '../services/videoOrientation';
 
 /**
  * 媒體顯示組件
@@ -18,10 +19,12 @@ function MediaDisplay({
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [videoRotationClass, setVideoRotationClass] = useState('');
 
   useEffect(() => {
     setImageLoaded(false);
     setHasError(false);
+    setVideoRotationClass('');
 
     // 處理已快取圖片（特別是行動裝置）
     // 有時快取圖片不會觸發 onLoad 事件
@@ -113,20 +116,36 @@ function MediaDisplay({
 
   // 影片顯示
   if (media.fileType === 'video') {
+    // 處理影片方向檢測
+    const handleVideoLoadedMetadata = async (e) => {
+      try {
+        const rotationClass = await getSmartVideoRotationClass(media.originalName, e.target);
+        setVideoRotationClass(rotationClass);
+        if (onLoad) {
+          onLoad(e);
+        }
+      } catch (error) {
+        console.warn('影片方向檢測失敗:', error);
+        if (onLoad) {
+          onLoad(e);
+        }
+      }
+    };
+
     return (
       <div className={`media-container ${className}`}>
         <motion.video
           key={media.id}
           ref={mediaRef}
           src={mediaUrl}
-          className="media-element"
+          className={`media-element ${videoRotationClass}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
           autoPlay
           muted={isMuted}
           playsInline
-          onLoadedData={onLoad}
+          onLoadedMetadata={handleVideoLoadedMetadata}
           onError={onError}
           onEnded={onEnded}
           onTimeUpdate={onTimeUpdate}
