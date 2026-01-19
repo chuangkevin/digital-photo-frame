@@ -123,7 +123,6 @@ function MediaDisplay({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
           autoPlay
-          loop={config?.videoLoop}
           muted
           playsInline
           onLoadedData={onLoad}
@@ -171,7 +170,6 @@ function MediaDisplay({
             ref={mediaRef}
             src={mediaUrl}
             autoPlay
-            loop={config?.audioLoop}
             onLoadedData={onLoad}
             onError={onError}
             onEnded={onEnded}

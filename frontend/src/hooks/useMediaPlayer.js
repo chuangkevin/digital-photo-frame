@@ -27,10 +27,11 @@ export function useMediaPlayer() {
   }, []);
 
   // 播放下一個媒體
-  const playNext = useCallback(() => {
+  const advanceToNext = useCallback(() => {
     clearImageTimer();
     actions.nextMedia();
     setError(null);
+    setIsLoaded(false);
   }, [actions, clearImageTimer]);
 
   // 播放上一個媒體
@@ -38,29 +39,22 @@ export function useMediaPlayer() {
     clearImageTimer();
     actions.previousMedia();
     setError(null);
+    setIsLoaded(false);
   }, [actions, clearImageTimer]);
+
+  // 媒體播放結束處理 (給 video/audio 的 onEnded 事件使用)
+  const handleMediaEnded = useCallback(() => {
+    advanceToNext();
+  }, [advanceToNext]);
 
   // 媒體載入完成處理
   const handleMediaLoaded = useCallback(() => {
     setIsLoaded(true);
     setError(null);
-
-    if (!currentMedia) return;
-
-    // 對於圖片，設定自動切換計時器
-    if (currentMedia.fileType === 'image') {
-      const displayDuration = (currentConfig?.imageDisplayDuration || 5) * 1000;
-
-      imageTimerRef.current = setTimeout(() => {
-        playNext();
-      }, displayDuration);
-    }
-
-    // 對於影片和音訊，取得時長
-    if (mediaRef.current && (currentMedia.fileType === 'video' || currentMedia.fileType === 'audio')) {
+    if (mediaRef.current && (currentMedia?.fileType === 'video' || currentMedia?.fileType === 'audio')) {
       setDuration(mediaRef.current.duration || 0);
     }
-  }, [currentMedia, currentConfig, playNext]);
+  }, [currentMedia]);
 
   // 媒體載入錯誤處理
   const handleMediaError = useCallback((e) => {
@@ -68,28 +62,11 @@ export function useMediaPlayer() {
     setError('媒體載入失敗');
     setIsLoaded(false);
 
-    // 自動切換到下一個媒體
+    // 1秒後自動切換到下一個媒體
     setTimeout(() => {
-      playNext();
+      advanceToNext();
     }, 1000);
-  }, [playNext]);
-
-  // 媒體播放結束處理
-  const handleMediaEnded = useCallback(() => {
-    if (!currentMedia) return;
-
-    // 檢查是否需要循環播放
-    const shouldLoop = currentMedia.fileType === 'video'
-      ? currentConfig?.videoLoop
-      : currentConfig?.audioLoop;
-
-    if (shouldLoop && mediaRef.current) {
-      mediaRef.current.currentTime = 0;
-      mediaRef.current.play();
-    } else {
-      playNext();
-    }
-  }, [currentMedia, currentConfig, playNext]);
+  }, [advanceToNext]);
 
   // 時間更新處理
   const handleTimeUpdate = useCallback(() => {
@@ -103,8 +80,7 @@ export function useMediaPlayer() {
     if (!mediaRef.current || !currentMedia) return;
 
     if (currentMedia.fileType === 'image') {
-      // 圖片不支援暫停，直接切換到下一個
-      playNext();
+      advanceToNext();
       return;
     }
 
@@ -113,7 +89,42 @@ export function useMediaPlayer() {
     } else {
       mediaRef.current.pause();
     }
-  }, [currentMedia, playNext]);
+  }, [currentMedia, advanceToNext]);
+  
+  // 主要播放邏輯: 根據媒體類型設定計時器或依賴 onEnded 事件
+  useEffect(() => {
+    clearImageTimer();
+    if (currentMedia && isLoaded) {
+      if (currentMedia.fileType === 'image') {
+        const displayDuration = (currentConfig?.imageDisplayDuration || 5) * 1000;
+        imageTimerRef.current = setTimeout(advanceToNext, displayDuration);
+      }
+      // 對於 video/audio, 我們依賴 handleMediaEnded, 所以這裡不做任何事
+    }
+    return () => clearImageTimer();
+  }, [currentMedia, isLoaded, currentConfig, advanceToNext, clearImageTimer]);
+
+  // 預加載下一個媒體
+  useEffect(() => {
+    if (mediaFiles.length > 1) {
+      const nextIndex = (currentMediaIndex + 1) % mediaFiles.length;
+      const nextMedia = mediaFiles[nextIndex];
+      if (nextMedia) {
+        const mediaUrl = `${getApiBaseUrl()}/api/files/${nextMedia.filename}?t=${nextMedia.id}`;
+        if (nextMedia.fileType === 'image') {
+          const img = new Image();
+          img.src = mediaUrl;
+        } else if (nextMedia.fileType === 'video' || nextMedia.fileType === 'audio') {
+          // 瀏覽器通常會自行處理 video/audio 的預加載，
+          // 但我們可以透過創建一個元素來提示
+          const mediaElement = document.createElement(nextMedia.fileType);
+          mediaElement.preload = 'auto';
+          mediaElement.src = mediaUrl;
+        }
+      }
+    }
+  }, [currentMediaIndex, mediaFiles]);
+
 
   // 跳轉到指定時間
   const seekTo = useCallback((time) => {
@@ -143,25 +154,15 @@ export function useMediaPlayer() {
     resetPlayer();
   }, [currentMediaIndex, resetPlayer]);
 
-  // 清理計時器
-  useEffect(() => {
-    return () => {
-      clearImageTimer();
-    };
-  }, [clearImageTimer]);
-
   // 返回當前媒體的 URL
   const getMediaUrl = useCallback(() => {
     if (!currentMedia) return null;
-
-    // 這裡可以根據需要添加基礎 URL
     return `${getApiBaseUrl()}/api/files/${currentMedia.filename}`;
   }, [currentMedia]);
 
   // 返回縮圖 URL
   const getThumbnailUrl = useCallback(() => {
     if (!currentMedia) return null;
-
     return `${getApiBaseUrl()}/api/thumbnails/${currentMedia.filename}`;
   }, [currentMedia]);
 
@@ -177,7 +178,7 @@ export function useMediaPlayer() {
     error,
 
     // 控制方法
-    playNext,
+    playNext: advanceToNext,
     playPrevious,
     togglePlayPause,
     seekTo,
@@ -198,8 +199,8 @@ export function useMediaPlayer() {
     mediaRef,
 
     // 輔助狀態
-    hasNext: currentMediaIndex < mediaFiles.length - 1,
-    hasPrevious: currentMediaIndex > 0,
+    hasNext: mediaFiles.length > 1,
+    hasPrevious: mediaFiles.length > 1,
     isPlaying: mediaRef.current ? !mediaRef.current.paused : false,
     progress: duration > 0 ? (currentTime / duration) * 100 : 0,
   };
