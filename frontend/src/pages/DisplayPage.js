@@ -398,7 +398,7 @@ function DisplayPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             onClick={toggleFullscreen}
-            className="absolute bottom-20 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-white active:bg-black/90 transition-colors touch-manipulation"
+            className="fixed bottom-20 right-4 z-50 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-white active:bg-black/90 transition-colors touch-manipulation"
             aria-label={isFullscreen ? '退出全螢幕' : '進入全螢幕'}
           >
             {isFullscreen ? (

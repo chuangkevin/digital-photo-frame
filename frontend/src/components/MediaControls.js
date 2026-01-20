@@ -131,7 +131,7 @@ function MediaControls({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
               transition={{ duration: 0.2 }}
-              className={`fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-0 right-0 w-max mx-auto bg-black/70 backdrop-blur-sm rounded-2xl p-4 ${className}`}
+              className={`fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-0 right-0 w-max mx-auto z-50 bg-black/70 backdrop-blur-sm rounded-2xl p-4 ${className}`}
             >
               {/* 進度條 */}
               {duration > 0 && (
@@ -255,7 +255,7 @@ function MediaControls({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
               transition={{ duration: 0.2 }}
-              className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-0 right-0 w-max mx-auto bg-black/70 backdrop-blur-sm rounded-2xl p-4"
+              className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-0 right-0 w-max mx-auto z-50 bg-black/70 backdrop-blur-sm rounded-2xl p-4"
             >
               <div className="flex items-center justify-center space-x-6">
                 {/* 上一個 */}
