@@ -39,6 +39,39 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    nightModeEnabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      comment: '是否啟用夜間模式',
+    },
+    nightModeStartTime: {
+      type: DataTypes.STRING(5),
+      defaultValue: '22:00',
+      comment: '夜間模式開始時間 (HH:MM)',
+    },
+    nightModeEndTime: {
+      type: DataTypes.STRING(5),
+      defaultValue: '07:00',
+      comment: '夜間模式結束時間 (HH:MM)',
+    },
+    nightModeBrightness: {
+      type: DataTypes.INTEGER,
+      defaultValue: 30,
+      validate: {
+        min: 10,
+        max: 100,
+      },
+      comment: '夜間模式亮度 (10-100)',
+    },
+    dayBrightness: {
+      type: DataTypes.INTEGER,
+      defaultValue: 100,
+      validate: {
+        min: 10,
+        max: 100,
+      },
+      comment: '日間模式亮度 (10-100)',
+    },
     createdTime: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

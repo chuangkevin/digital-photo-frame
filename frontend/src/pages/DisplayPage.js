@@ -6,6 +6,7 @@ import MediaControls from '../components/MediaControls';
 import { useApp } from '../contexts/AppContext';
 import useMediaPlayer from '../hooks/useMediaPlayer';
 import useTouch from '../hooks/useTouch';
+import { useBrightnessControl } from '../hooks/useBrightnessControl';
 import { joinDisplayRoom, onSocketEvent, SocketEvents, disconnectSocket } from '../services/socketService';
 
 /**
@@ -46,6 +47,9 @@ function DisplayPage() {
     isMuted,
     toggleMute,
   } = useMediaPlayer();
+
+  // 亮度控制
+  const brightnessControl = useBrightnessControl(currentConfig);
 
   // 處理觸控手勢
   const { touchRef } = useTouch({
@@ -295,6 +299,10 @@ function DisplayPage() {
       ref={touchRef}
       onClick={() => actions.showControls()}
       className="w-full h-screen bg-black relative overflow-hidden select-none cursor-pointer"
+      style={{
+        filter: `brightness(${brightnessControl.currentBrightness}%)`,
+        transition: 'filter 1s ease-in-out',
+      }}
     >
       {/* 主要媒體顯示區域 */}
       <AnimatePresence mode="wait">
@@ -330,6 +338,7 @@ function DisplayPage() {
         onAdminClick={goToAdmin}
         hasNext={hasNext}
         hasPrevious={hasPrevious}
+        brightnessControl={brightnessControl}
       />
 
       {/* 載入指示器 */}

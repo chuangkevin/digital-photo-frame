@@ -7,14 +7,39 @@ import { useApp } from '../contexts/AppContext';
  * 播放配置表單組件
  */
 function PlaybackConfigForm({ config = null, onSave, onCancel }) {
-  const [formData, setFormData] = useState({
-    name: '',
-    modeType: 'library_sequence',
-    imageDisplayDuration: 5,
-    videoLoop: true,
-    audioLoop: true,
-    sequenceRandom: false,
-    ...config,
+  const [formData, setFormData] = useState(() => {
+    const defaults = {
+      name: '',
+      modeType: 'library_sequence',
+      imageDisplayDuration: 5,
+      videoLoop: true,
+      audioLoop: true,
+      sequenceRandom: false,
+      nightModeEnabled: false,
+      nightModeStartTime: '22:00',
+      nightModeEndTime: '07:00',
+      nightModeBrightness: 30,
+      dayBrightness: 100,
+    };
+
+    // 如果有 config，合併但確保數值欄位不是 undefined 或 NaN
+    if (config) {
+      return {
+        ...defaults,
+        ...config,
+        nightModeEnabled: config.nightModeEnabled ?? defaults.nightModeEnabled,
+        nightModeStartTime: config.nightModeStartTime || defaults.nightModeStartTime,
+        nightModeEndTime: config.nightModeEndTime || defaults.nightModeEndTime,
+        nightModeBrightness: typeof config.nightModeBrightness === 'number' && !isNaN(config.nightModeBrightness)
+          ? config.nightModeBrightness
+          : defaults.nightModeBrightness,
+        dayBrightness: typeof config.dayBrightness === 'number' && !isNaN(config.dayBrightness)
+          ? config.dayBrightness
+          : defaults.dayBrightness,
+      };
+    }
+
+    return defaults;
   });
 
   const [saving, setSaving] = useState(false);
@@ -36,6 +61,27 @@ function PlaybackConfigForm({ config = null, onSave, onCancel }) {
 
     if (formData.imageDisplayDuration < 1 || formData.imageDisplayDuration > 60) {
       newErrors.imageDisplayDuration = '顯示時間必須在 1-60 秒之間';
+    }
+
+    // 驗證夜間模式設定
+    if (formData.nightModeEnabled) {
+      const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+      if (!timeRegex.test(formData.nightModeStartTime)) {
+        newErrors.nightModeStartTime = '時間格式必須是 HH:MM (例如: 22:00)';
+      }
+
+      if (!timeRegex.test(formData.nightModeEndTime)) {
+        newErrors.nightModeEndTime = '時間格式必須是 HH:MM (例如: 07:00)';
+      }
+
+      if (formData.nightModeBrightness < 10 || formData.nightModeBrightness > 100) {
+        newErrors.nightModeBrightness = '夜間亮度必須在 10-100 之間';
+      }
+
+      if (formData.dayBrightness < 10 || formData.dayBrightness > 100) {
+        newErrors.dayBrightness = '日間亮度必須在 10-100 之間';
+      }
     }
 
     setErrors(newErrors);
@@ -191,6 +237,104 @@ function PlaybackConfigForm({ config = null, onSave, onCancel }) {
         </label>
       </div>
 
+      {/* 夜間模式設定 */}
+      <div className="space-y-4">
+        <h4 className="text-sm font-medium text-gray-700">夜間模式設定</h4>
+
+        <label className="flex items-center space-x-3">
+          <input
+            type="checkbox"
+            checked={formData.nightModeEnabled}
+            onChange={(e) => handleChange('nightModeEnabled', e.target.checked)}
+            className="rounded"
+          />
+          <div>
+            <div className="font-medium">啟用夜間模式</div>
+            <div className="text-sm text-gray-500">自動調整螢幕亮度以適應不同時段</div>
+          </div>
+        </label>
+
+        {formData.nightModeEnabled && (
+          <div className="ml-8 space-y-4 animate-fadeIn">
+            {/* 時間範圍選擇 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  夜間開始時間
+                </label>
+                <input
+                  type="time"
+                  value={formData.nightModeStartTime}
+                  onChange={(e) => handleChange('nightModeStartTime', e.target.value)}
+                  className={`touch-input ${errors.nightModeStartTime ? 'border-red-500' : ''}`}
+                />
+                {errors.nightModeStartTime && (
+                  <p className="text-red-500 text-sm mt-1">{errors.nightModeStartTime}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  夜間結束時間
+                </label>
+                <input
+                  type="time"
+                  value={formData.nightModeEndTime}
+                  onChange={(e) => handleChange('nightModeEndTime', e.target.value)}
+                  className={`touch-input ${errors.nightModeEndTime ? 'border-red-500' : ''}`}
+                />
+                {errors.nightModeEndTime && (
+                  <p className="text-red-500 text-sm mt-1">{errors.nightModeEndTime}</p>
+                )}
+              </div>
+            </div>
+
+            {/* 亮度滑桿 */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  夜間亮度: {formData.nightModeBrightness}%
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  step="5"
+                  value={formData.nightModeBrightness}
+                  onChange={(e) => handleChange('nightModeBrightness', parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                />
+                {errors.nightModeBrightness && (
+                  <p className="text-red-500 text-sm mt-1">{errors.nightModeBrightness}</p>
+                )}
+                <p className="text-sm text-gray-500 mt-1">
+                  夜間時段的螢幕亮度 (10-100%)
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  日間亮度: {formData.dayBrightness}%
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  step="5"
+                  value={formData.dayBrightness}
+                  onChange={(e) => handleChange('dayBrightness', parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                />
+                {errors.dayBrightness && (
+                  <p className="text-red-500 text-sm mt-1">{errors.dayBrightness}</p>
+                )}
+                <p className="text-sm text-gray-500 mt-1">
+                  日間時段的螢幕亮度 (10-100%)
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* 提交錯誤 */}
       {errors.submit && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -284,6 +428,13 @@ function PlaybackConfigItem({ config, onEdit, onDelete, onActivate, onManagePlay
               <span>音訊循環：{config.audioLoop ? '是' : '否'}</span>
               <span>隨機播放：{config.sequenceRandom ? '是' : '否'}</span>
             </div>
+            {config.nightModeEnabled && (
+              <div className="flex space-x-4 mt-1">
+                <span>夜間模式：啟用</span>
+                <span>時段：{config.nightModeStartTime} - {config.nightModeEndTime}</span>
+                <span>亮度：{config.nightModeBrightness}% / {config.dayBrightness}%</span>
+              </div>
+            )}
           </div>
 
           {config.playlistItems && config.modeType === 'fixed_media' && (

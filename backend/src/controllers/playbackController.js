@@ -63,7 +63,12 @@ const createPlaybackConfig = asyncHandler(async (req, res) => {
     imageDisplayDuration = 5,
     videoLoop = true,
     audioLoop = true,
-    sequenceRandom = false
+    sequenceRandom = false,
+    nightModeEnabled = false,
+    nightModeStartTime = '22:00',
+    nightModeEndTime = '07:00',
+    nightModeBrightness = 30,
+    dayBrightness = 100
   } = req.body;
 
   // 驗證必要欄位
@@ -81,6 +86,37 @@ const createPlaybackConfig = asyncHandler(async (req, res) => {
     });
   }
 
+  // 驗證時間格式 (HH:MM)
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  if (nightModeEnabled) {
+    if (!timeRegex.test(nightModeStartTime)) {
+      return res.status(400).json({
+        error: '無效的時間格式',
+        message: 'nightModeStartTime 必須是 HH:MM 格式 (例如: 22:00)'
+      });
+    }
+    if (!timeRegex.test(nightModeEndTime)) {
+      return res.status(400).json({
+        error: '無效的時間格式',
+        message: 'nightModeEndTime 必須是 HH:MM 格式 (例如: 07:00)'
+      });
+    }
+
+    // 驗證亮度範圍
+    if (nightModeBrightness < 10 || nightModeBrightness > 100) {
+      return res.status(400).json({
+        error: '無效的亮度值',
+        message: 'nightModeBrightness 必須在 10 到 100 之間'
+      });
+    }
+    if (dayBrightness < 10 || dayBrightness > 100) {
+      return res.status(400).json({
+        error: '無效的亮度值',
+        message: 'dayBrightness 必須在 10 到 100 之間'
+      });
+    }
+  }
+
   const config = await PlaybackConfig.create({
     modeType,
     name,
@@ -88,6 +124,11 @@ const createPlaybackConfig = asyncHandler(async (req, res) => {
     videoLoop,
     audioLoop,
     sequenceRandom,
+    nightModeEnabled,
+    nightModeStartTime,
+    nightModeEndTime,
+    nightModeBrightness,
+    dayBrightness,
     isActive: false
   });
 
@@ -114,6 +155,43 @@ const updatePlaybackConfig = asyncHandler(async (req, res) => {
       error: '配置未找到',
       message: '指定的播放配置不存在'
     });
+  }
+
+  // 驗證時間格式和亮度（如果有提供這些欄位）
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+  if (updateData.nightModeStartTime !== undefined && !timeRegex.test(updateData.nightModeStartTime)) {
+    return res.status(400).json({
+      error: '無效的時間格式',
+      message: 'nightModeStartTime 必須是 HH:MM 格式 (例如: 22:00)'
+    });
+  }
+
+  if (updateData.nightModeEndTime !== undefined && !timeRegex.test(updateData.nightModeEndTime)) {
+    return res.status(400).json({
+      error: '無效的時間格式',
+      message: 'nightModeEndTime 必須是 HH:MM 格式 (例如: 07:00)'
+    });
+  }
+
+  if (updateData.nightModeBrightness !== undefined) {
+    const brightness = parseInt(updateData.nightModeBrightness);
+    if (brightness < 10 || brightness > 100) {
+      return res.status(400).json({
+        error: '無效的亮度值',
+        message: 'nightModeBrightness 必須在 10 到 100 之間'
+      });
+    }
+  }
+
+  if (updateData.dayBrightness !== undefined) {
+    const brightness = parseInt(updateData.dayBrightness);
+    if (brightness < 10 || brightness > 100) {
+      return res.status(400).json({
+        error: '無效的亮度值',
+        message: 'dayBrightness 必須在 10 到 100 之間'
+      });
+    }
   }
 
   // 移除不可更新的欄位
