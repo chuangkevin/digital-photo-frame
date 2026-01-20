@@ -149,6 +149,12 @@ function DisplayPage() {
       loadData();
     });
 
+    // 監聽配置更新事件
+    const unsubscribeConfigUpdate = onSocketEvent(SocketEvents.CONFIG_UPDATED, (data) => {
+      console.log('📡 收到配置更新通知:', data);
+      loadData();
+    });
+
     // 監聯播放清單更新事件
     const unsubscribePlaylist = onSocketEvent(SocketEvents.PLAYLIST_UPDATED, (data) => {
       console.log('📡 收到播放清單更新通知:', data);
@@ -158,6 +164,7 @@ function DisplayPage() {
     return () => {
       unsubscribeRefresh();
       unsubscribeConfig();
+      unsubscribeConfigUpdate();
       unsubscribePlaylist();
       disconnectSocket();
     };
