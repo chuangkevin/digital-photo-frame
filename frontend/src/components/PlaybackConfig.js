@@ -255,9 +255,9 @@ function PlaybackConfigForm({ config = null, onSave, onCancel }) {
         </label>
 
         {formData.nightModeEnabled && (
-          <div className="ml-8 space-y-4 animate-fadeIn">
+          <div className="ml-0 sm:ml-8 space-y-4 animate-fadeIn">
             {/* 時間範圍選擇 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   夜間開始時間
@@ -269,7 +269,7 @@ function PlaybackConfigForm({ config = null, onSave, onCancel }) {
                   className={`touch-input ${errors.nightModeStartTime ? 'border-red-500' : ''}`}
                 />
                 {errors.nightModeStartTime && (
-                  <p className="text-red-500 text-sm mt-1">{errors.nightModeStartTime}</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.nightModeStartTime}</p>
                 )}
               </div>
               <div>
@@ -283,13 +283,13 @@ function PlaybackConfigForm({ config = null, onSave, onCancel }) {
                   className={`touch-input ${errors.nightModeEndTime ? 'border-red-500' : ''}`}
                 />
                 {errors.nightModeEndTime && (
-                  <p className="text-red-500 text-sm mt-1">{errors.nightModeEndTime}</p>
+                  <p className="text-xs sm:text-sm text-red-500 mt-1">{errors.nightModeEndTime}</p>
                 )}
               </div>
             </div>
 
             {/* 亮度滑桿 */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   夜間亮度: {formData.nightModeBrightness}%
@@ -304,9 +304,9 @@ function PlaybackConfigForm({ config = null, onSave, onCancel }) {
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                 />
                 {errors.nightModeBrightness && (
-                  <p className="text-red-500 text-sm mt-1">{errors.nightModeBrightness}</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.nightModeBrightness}</p>
                 )}
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">
                   夜間時段的螢幕亮度 (10-100%)
                 </p>
               </div>
@@ -324,9 +324,9 @@ function PlaybackConfigForm({ config = null, onSave, onCancel }) {
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                 />
                 {errors.dayBrightness && (
-                  <p className="text-red-500 text-sm mt-1">{errors.dayBrightness}</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.dayBrightness}</p>
                 )}
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">
                   日間時段的螢幕亮度 (10-100%)
                 </p>
               </div>
@@ -343,11 +343,11 @@ function PlaybackConfigForm({ config = null, onSave, onCancel }) {
       )}
 
       {/* 按鈕 */}
-      <div className="flex space-x-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         <button
           type="submit"
           disabled={saving}
-          className="touch-button-primary flex-1"
+          className="touch-button-primary flex-1 order-2 sm:order-1"
         >
           {saving ? (
             <span className="flex items-center justify-center">
@@ -362,7 +362,7 @@ function PlaybackConfigForm({ config = null, onSave, onCancel }) {
         <button
           type="button"
           onClick={onCancel}
-          className="touch-button-secondary"
+          className="touch-button-secondary flex-shrink-0 order-1 sm:order-2"
         >
           取消
         </button>

@@ -238,8 +238,8 @@ function AdminPage() {
     <div className="min-h-screen bg-gray-50">
       {/* 頁首 */}
       <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+        <div className="px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={goToDisplay}
@@ -250,14 +250,14 @@ function AdminPage() {
                   <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                 </svg>
               </button>
-              <h1 className="text-base sm:text-xl font-semibold text-gray-900">
+              <h1 className="text-sm sm:text-base lg:text-xl font-semibold text-gray-900 truncate">
                 數位相框管理
               </h1>
             </div>
 
             <button
               onClick={goToDisplay}
-              className="touch-button-primary text-sm sm:text-base px-3 sm:px-4 py-2"
+              className="touch-button-primary text-xs sm:text-sm lg:text-base px-2 sm:px-3 lg:px-4 py-2 whitespace-nowrap flex-shrink-0"
             >
               <span className="hidden sm:inline">返回展示</span>
               <span className="sm:hidden">返回</span>
@@ -288,22 +288,22 @@ function AdminPage() {
         </nav>
 
         {/* 主要內容區域 */}
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="flex-1 p-3 sm:p-4 lg:p-6">
           {/* 行動版標籤切換 */}
-          <div className="lg:hidden mb-6">
+          <div className="lg:hidden mb-4 sm:mb-6">
             <div className="border-b border-gray-200">
-              <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto pb-px">
+              <nav className="-mb-px flex space-x-2 sm:space-x-4 lg:space-x-8 overflow-x-auto pb-px hide-scrollbar">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 touch-manipulation ${
+                    className={`py-2 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex-shrink-0 touch-manipulation ${
                       activeTab === tab.id
                         ? 'border-blue-500 text-blue-600'
                         : 'border-transparent text-gray-500 active:text-gray-700 active:border-gray-300'
                     }`}
                   >
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-1.5 sm:gap-2">
                       {tab.icon}
                       <span>{tab.name}</span>
                     </span>
@@ -324,23 +324,23 @@ function AdminPage() {
               className="w-full"
             >
               {activeTab === 'media' && (
-                <div className="space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <h2 className="text-2xl font-bold text-gray-900">媒體管理</h2>
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">媒體管理</h2>
 
                     {/* 快取管理按鈕 */}
                     <div className="flex flex-col sm:flex-row gap-2">
                       <button
                         onClick={handleClearOrphanedCache}
                         disabled={clearingCache}
-                        className="touch-button text-sm px-3 py-2 bg-orange-500 active:bg-orange-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                        className="text-xs sm:text-sm px-2.5 sm:px-3 py-2 bg-orange-500 active:bg-orange-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[40px] font-medium"
                       >
                         {clearingCache ? '處理中...' : '清除無效快取'}
                       </button>
                       <button
                         onClick={handleClearAllCache}
                         disabled={clearingCache}
-                        className="touch-button text-sm px-3 py-2 bg-red-500 active:bg-red-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                        className="text-xs sm:text-sm px-2.5 sm:px-3 py-2 bg-red-500 active:bg-red-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[40px] font-medium"
                       >
                         {clearingCache ? '處理中...' : '清除所有快取'}
                       </button>
@@ -381,8 +381,8 @@ function AdminPage() {
               )}
 
               {activeTab === 'upload' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-gray-900">檔案上傳</h2>
+                <div className="space-y-4 sm:space-y-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">檔案上傳</h2>
                   <FileUpload onUploadComplete={handleUploadComplete} />
                 </div>
               )}
@@ -392,8 +392,8 @@ function AdminPage() {
               )}
 
               {activeTab === 'status' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-gray-900">系統狀態</h2>
+                <div className="space-y-4 sm:space-y-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">系統狀態</h2>
                   <SystemStatus />
                 </div>
               )}

@@ -82,20 +82,20 @@
 
   /* 管理卡片 */
   .admin-card {
-    @apply bg-white rounded-lg shadow-lg p-4 mb-4;
+    @apply bg-white rounded-lg shadow-lg p-3 sm:p-4 mb-4;
     @apply border border-gray-200;
   }
 
   /* 觸控友善的輸入欄位 */
   .touch-input {
-    @apply w-full px-4 py-3 text-lg border border-gray-300 rounded-lg;
+    @apply w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg border border-gray-300 rounded-lg;
     @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
     @apply min-h-touch-target;
   }
 
   /* 觸控友善的按鈕 */
   .touch-button {
-    @apply px-6 py-3 text-lg font-medium rounded-lg;
+    @apply px-4 sm:px-6 py-2.5 sm:py-3 text-base sm:text-lg font-medium rounded-lg;
     @apply min-h-touch-target min-w-touch-target;
     @apply transition-all duration-200;
     @apply active:scale-95;

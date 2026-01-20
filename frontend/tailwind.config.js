@@ -14,6 +14,12 @@ module.exports = {
       spacing: {
         'touch-target': '44px', // 最小觸控目標
       },
+      minHeight: {
+        'touch-target': '44px',
+      },
+      minWidth: {
+        'touch-target': '44px',
+      },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
         'fade-out': 'fadeOut 0.3s ease-in-out',
