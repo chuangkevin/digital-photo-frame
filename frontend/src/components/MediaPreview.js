@@ -30,7 +30,7 @@ function MediaPreview({ media, onClose }) {
 
   if (!media) return null;
 
-  const mediaUrl = `${getApiBaseUrl()}/api/media/${media.filename}`;
+  const mediaUrl = `${getApiBaseUrl()}/api/files/${media.filename}`;
 
   // 格式化檔案大小
   const formatFileSize = (bytes) => {

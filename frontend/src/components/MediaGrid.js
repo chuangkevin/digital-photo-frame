@@ -8,7 +8,7 @@ import MediaPreview from './MediaPreview';
 /**
  * 媒體項目組件
  */
-function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false }) {
+function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false, selectionMode = false, onToggleSelect }) {
   const [imageError, setImageError] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -66,8 +66,14 @@ function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false 
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className={`media-item ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
-      onClick={() => onSelect && onSelect(media)}
+      className={`media-item ${isSelected ? 'ring-4 ring-blue-500' : ''}`}
+      onClick={() => {
+        if (selectionMode) {
+          onToggleSelect && onToggleSelect(media.id);
+        } else {
+          onSelect && onSelect(media);
+        }
+      }}
     >
       {/* 縮圖 */}
       <div className="relative w-full h-full">
@@ -112,34 +118,59 @@ function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false 
           {media.fileType.toUpperCase()}
         </div>
 
-        {/* 操作按鈕 - 直接顯示，針對觸控優化 */}
-        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 flex gap-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect && onSelect(media);
-            }}
-            className="p-2 sm:p-2.5 bg-blue-500/90 text-white rounded-full active:bg-blue-600 active:scale-95 transition-transform touch-manipulation"
-            aria-label="預覽"
-          >
-            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-            </svg>
-          </button>
+        {/* 選擇模式：複選框 */}
+        {selectionMode && (
+          <div className="absolute top-1 right-1 sm:top-2 sm:right-2">
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleSelect && onToggleSelect(media.id);
+              }}
+              className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full ${
+                isSelected ? 'bg-blue-500' : 'bg-black/50'
+              } active:scale-95 transition-transform touch-manipulation`}
+            >
+              {isSelected ? (
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+              ) : (
+                <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white rounded"></div>
+              )}
+            </div>
+          </div>
+        )}
 
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowDeleteConfirm(true);
-            }}
-            className="p-2 sm:p-2.5 bg-red-500/90 text-white rounded-full active:bg-red-600 active:scale-95 transition-transform touch-manipulation"
-            aria-label="刪除"
-          >
-            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-            </svg>
-          </button>
-        </div>
+        {/* 一般模式：操作按鈕 */}
+        {!selectionMode && (
+          <div className="absolute top-1 right-1 sm:top-2 sm:right-2 flex gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect && onSelect(media);
+              }}
+              className="p-2 sm:p-2.5 bg-blue-500/90 text-white rounded-full active:bg-blue-600 active:scale-95 transition-transform touch-manipulation"
+              aria-label="預覽"
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+              </svg>
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDeleteConfirm(true);
+              }}
+              className="p-2 sm:p-2.5 bg-red-500/90 text-white rounded-full active:bg-red-600 active:scale-95 transition-transform touch-manipulation"
+              aria-label="刪除"
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 媒體資訊 */}
@@ -212,6 +243,8 @@ function MediaGrid({
   const [sortBy, setSortBy] = useState('uploadTime'); // 'uploadTime', 'name', 'size'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
   const [previewMedia, setPreviewMedia] = useState(null); // 預覽的媒體
+  const [selectionMode, setSelectionMode] = useState(false); // 選擇模式
+  const [selectedMediaIds, setSelectedMediaIds] = useState([]); // 選中的媒體 ID
 
   // 篩選和排序媒體列表
   const filteredAndSortedMedia = useMemo(() => {
@@ -250,6 +283,34 @@ function MediaGrid({
     return filtered;
   }, [mediaList, filter, sortBy, sortOrder]);
 
+  // 切換選擇模式
+  const toggleSelectionMode = useCallback(() => {
+    setSelectionMode(prev => !prev);
+    if (!selectionMode) {
+      setSelectedMediaIds([]);
+    }
+  }, [selectionMode]);
+
+  // 切換單個媒體的選擇狀態
+  const toggleMediaSelection = useCallback((mediaId) => {
+    setSelectedMediaIds(prev => {
+      if (prev.includes(mediaId)) {
+        return prev.filter(id => id !== mediaId);
+      } else {
+        return [...prev, mediaId];
+      }
+    });
+  }, []);
+
+  // 全選/取消全選
+  const toggleSelectAll = useCallback(() => {
+    if (selectedMediaIds.length === filteredAndSortedMedia.length) {
+      setSelectedMediaIds([]);
+    } else {
+      setSelectedMediaIds(filteredAndSortedMedia.map(m => m.id));
+    }
+  }, [selectedMediaIds, filteredAndSortedMedia]);
+
   // 處理項目選擇（打開預覽）
   const handleItemSelect = useCallback((media) => {
     setPreviewMedia(media);
@@ -284,14 +345,14 @@ function MediaGrid({
 
   // 批次刪除
   const handleBatchDelete = useCallback(async () => {
-    if (selectedItems.length === 0) return;
+    if (selectedMediaIds.length === 0) return;
 
     try {
       // 找到要刪除的媒體檔案資訊
-      const mediaToDelete = mediaList.filter(m => selectedItems.includes(m.id));
+      const mediaToDelete = mediaList.filter(m => selectedMediaIds.includes(m.id));
 
       await Promise.all(
-        selectedItems.map(mediaId => mediaAPI.delete(mediaId))
+        selectedMediaIds.map(mediaId => mediaAPI.delete(mediaId))
       );
 
       // 批次清除快取
@@ -301,18 +362,22 @@ function MediaGrid({
       console.log(`已批次清除 ${mediaToDelete.length} 個媒體快取`);
 
       // 更新全域狀態
-      selectedItems.forEach(mediaId => {
+      selectedMediaIds.forEach(mediaId => {
         dispatch({
           type: ActionTypes.REMOVE_MEDIA,
           payload: mediaId,
         });
       });
 
-      onBatchDelete && onBatchDelete(selectedItems);
+      // 清空選擇並退出選擇模式
+      setSelectedMediaIds([]);
+      setSelectionMode(false);
+
+      onBatchDelete && onBatchDelete(selectedMediaIds);
     } catch (error) {
       console.error('批次刪除失敗:', error);
     }
-  }, [selectedItems, mediaList, dispatch, ActionTypes, onBatchDelete]);
+  }, [selectedMediaIds, mediaList, dispatch, ActionTypes, onBatchDelete]);
 
   // 統計資訊
   const stats = useMemo(() => {
@@ -337,9 +402,30 @@ function MediaGrid({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* 工具列 */}
-      <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4 sm:items-center sm:justify-between">
-        {/* 篩選器 */}
-        <div className="flex flex-col sm:flex-row gap-2">
+      <div className="flex flex-col space-y-3 sm:space-y-0">
+        {/* 第一行：選擇模式按鈕 */}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={toggleSelectionMode}
+            className={`touch-button-${selectionMode ? 'primary' : 'secondary'} text-sm px-4 py-2`}
+          >
+            {selectionMode ? '✓ 選擇模式' : '選擇多個'}
+          </button>
+
+          {selectionMode && filteredAndSortedMedia.length > 0 && (
+            <button
+              onClick={toggleSelectAll}
+              className="touch-button-secondary text-sm px-4 py-2"
+            >
+              {selectedMediaIds.length === filteredAndSortedMedia.length ? '取消全選' : '全選'}
+            </button>
+          )}
+        </div>
+
+        {/* 第二行：篩選器和批量操作 */}
+        <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4 sm:items-center sm:justify-between">
+          {/* 篩選器 */}
+          <div className="flex flex-col sm:flex-row gap-2">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -369,24 +455,25 @@ function MediaGrid({
           </select>
         </div>
 
-        {/* 批次操作 */}
-        {selectedItems.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center justify-between sm:justify-start space-x-2"
-          >
-            <span className="text-xs sm:text-sm text-gray-600">
-              已選擇 {selectedItems.length} 個
-            </span>
-            <button
-              onClick={handleBatchDelete}
-              className="touch-button-danger text-xs sm:text-sm px-3 sm:px-4 py-2"
+          {/* 批次操作 */}
+          {selectionMode && selectedMediaIds.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center justify-between sm:justify-start space-x-2"
             >
-              批次刪除
-            </button>
-          </motion.div>
-        )}
+              <span className="text-xs sm:text-sm text-gray-600 font-medium">
+                已選擇 {selectedMediaIds.length} 個
+              </span>
+              <button
+                onClick={handleBatchDelete}
+                className="touch-button-danger text-xs sm:text-sm px-3 sm:px-4 py-2"
+              >
+                刪除所選項目
+              </button>
+            </motion.div>
+          )}
+        </div>
       </div>
 
       {/* 統計資訊 */}
@@ -442,8 +529,10 @@ function MediaGrid({
                 media={media}
                 onSelect={handleItemSelect}
                 onDelete={handleItemDelete}
-                isSelected={selectedItems.includes(media.id)}
+                isSelected={selectedMediaIds.includes(media.id)}
                 showDetails={showDetails}
+                selectionMode={selectionMode}
+                onToggleSelect={toggleMediaSelection}
               />
             ))}
           </AnimatePresence>
