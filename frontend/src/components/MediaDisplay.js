@@ -105,6 +105,14 @@ function MediaDisplay({
   if (media.fileType === 'image') {
     return (
       <div className={`media-container ${className}`}>
+        {/* 模糊背景層 */}
+        {imageLoaded && !hasError && (
+          <div
+            className="media-background"
+            style={{ backgroundImage: `url(${mediaUrl})` }}
+          />
+        )}
+
         <AnimatePresence mode="wait">
           {hasError ? (
             <motion.div
@@ -161,6 +169,19 @@ function MediaDisplay({
   if (media.fileType === 'video') {
     return (
       <div className={`media-container ${className}`}>
+        {/* 模糊背景影片層 */}
+        <video
+          key={`bg-${media.id}`}
+          src={mediaUrl}
+          className="media-background"
+          style={{ objectFit: 'cover' }}
+          autoPlay
+          muted
+          playsInline
+          aria-hidden="true"
+        />
+
+        {/* 前景影片 */}
         <motion.video
           key={media.id}
           ref={mediaRef}

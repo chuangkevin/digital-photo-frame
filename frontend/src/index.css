@@ -59,9 +59,25 @@
     @apply bg-black overflow-hidden;
   }
 
+  /* 媒體背景層（模糊延展） */
+  .media-background {
+    @apply absolute inset-0 w-full h-full;
+    background-size: cover;
+    background-position: center;
+    filter: blur(40px) brightness(0.4);
+    transform: scale(1.1); /* 稍微放大避免模糊邊緣 */
+    z-index: 0;
+  }
+
+  /* 影片背景層額外樣式 */
+  .media-background[style*="objectFit"] {
+    object-fit: cover;
+  }
+
   /* 媒體元素 */
   .media-element {
     @apply max-w-full max-h-full object-contain;
+    @apply relative z-10; /* 確保在背景層之上 */
   }
 
   /* 管理卡片 */
