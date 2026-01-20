@@ -365,7 +365,7 @@ function DisplayPage() {
             <p className="text-sm mt-1">{state.error}</p>
             <button
               onClick={actions.clearError}
-              className="text-xs underline mt-2 opacity-80 hover:opacity-100"
+              className="text-xs underline mt-2 opacity-80 active:opacity-100 touch-manipulation"
             >
               關閉
             </button>

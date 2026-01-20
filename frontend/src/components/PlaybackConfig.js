@@ -318,7 +318,7 @@ function PlaybackConfigItem({ config, onEdit, onDelete, onActivate, onManagePlay
           {config.modeType === 'fixed_media' && (
             <button
               onClick={() => onManagePlaylist(config)}
-              className="text-sm px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200"
+              className="text-sm px-4 py-2 bg-purple-100 text-purple-700 rounded-lg active:bg-purple-200 touch-manipulation"
             >
               管理清單
             </button>
@@ -327,10 +327,10 @@ function PlaybackConfigItem({ config, onEdit, onDelete, onActivate, onManagePlay
           <button
             onClick={() => setShowDeleteConfirm(true)}
             disabled={config.isActive}
-            className={`text-sm px-4 py-2 rounded-lg ${
+            className={`text-sm px-4 py-2 rounded-lg touch-manipulation ${
               config.isActive
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-red-100 text-red-700 hover:bg-red-200'
+                : 'bg-red-100 text-red-700 active:bg-red-200'
             }`}
           >
             刪除

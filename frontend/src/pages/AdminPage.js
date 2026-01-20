@@ -243,7 +243,8 @@ function AdminPage() {
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={goToDisplay}
-                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-gray-500 active:text-gray-700 active:bg-gray-100 rounded-lg transition-colors touch-manipulation"
+                aria-label="返回"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
@@ -273,10 +274,10 @@ function AdminPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
+                className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors touch-manipulation ${
                   activeTab === tab.id
                     ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    : 'text-gray-600 active:bg-gray-50 active:text-gray-900'
                 }`}
               >
                 <span className="mr-3">{tab.icon}</span>
@@ -296,10 +297,10 @@ function AdminPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
+                    className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 touch-manipulation ${
                       activeTab === tab.id
                         ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        : 'border-transparent text-gray-500 active:text-gray-700 active:border-gray-300'
                     }`}
                   >
                     <span className="flex items-center gap-2">
@@ -332,14 +333,14 @@ function AdminPage() {
                       <button
                         onClick={handleClearOrphanedCache}
                         disabled={clearingCache}
-                        className="touch-button text-sm px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="touch-button text-sm px-3 py-2 bg-orange-500 active:bg-orange-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                       >
                         {clearingCache ? '處理中...' : '清除無效快取'}
                       </button>
                       <button
                         onClick={handleClearAllCache}
                         disabled={clearingCache}
-                        className="touch-button text-sm px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="touch-button text-sm px-3 py-2 bg-red-500 active:bg-red-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                       >
                         {clearingCache ? '處理中...' : '清除所有快取'}
                       </button>
@@ -417,7 +418,8 @@ function AdminPage() {
               </div>
               <button
                 onClick={actions.clearError}
-                className="ml-4 p-1 hover:bg-red-600 rounded"
+                className="ml-4 p-1 active:bg-red-600 rounded touch-manipulation"
+                aria-label="關閉錯誤訊息"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>

@@ -227,7 +227,8 @@ function FileUpload({ onUploadComplete, className = '' }) {
                     {upload.status !== 'uploading' && (
                       <button
                         onClick={() => removeUploadItem(upload.id)}
-                        className="ml-2 p-1 text-gray-400 hover:text-gray-600"
+                        className="ml-2 p-1 text-gray-400 active:text-gray-600 touch-manipulation"
+                        aria-label="移除檔案"
                       >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>

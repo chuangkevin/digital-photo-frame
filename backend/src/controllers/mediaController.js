@@ -33,7 +33,7 @@ const uploadMedia = asyncHandler(async (req, res) => {
 
     // 產生縮圖
     const uploadsRoot = process.env.UPLOAD_PATH || './uploads';
-    const thumbnailsDir = path.join(uploadsRoot, '..', 'thumbnails');
+    const thumbnailsDir = path.join(uploadsRoot, 'thumbnails');
 
     await fs.ensureDir(thumbnailsDir);
 

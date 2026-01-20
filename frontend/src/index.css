@@ -50,7 +50,7 @@
   .floating-control {
     @apply fixed z-50 bg-black/70 backdrop-blur-sm text-white rounded-full p-3;
     @apply transition-all duration-300 ease-in-out;
-    @apply hover:bg-black/90 active:scale-95;
+    @apply active:bg-black/90 active:scale-95 touch-manipulation;
   }
 
   /* 媒體容器 */
@@ -103,24 +103,24 @@
 
   .touch-button-primary {
     @apply touch-button bg-blue-500 text-white;
-    @apply hover:bg-blue-600 active:bg-blue-700;
+    @apply active:bg-blue-600 touch-manipulation;
   }
 
   .touch-button-secondary {
     @apply touch-button bg-gray-500 text-white;
-    @apply hover:bg-gray-600 active:bg-gray-700;
+    @apply active:bg-gray-600 touch-manipulation;
   }
 
   .touch-button-danger {
     @apply touch-button bg-red-500 text-white;
-    @apply hover:bg-red-600 active:bg-red-700;
+    @apply active:bg-red-600 touch-manipulation;
   }
 
   /* 上傳區域 */
   .upload-zone {
     @apply border-2 border-dashed border-gray-300 rounded-lg p-8;
     @apply text-center transition-colors duration-200;
-    @apply hover:border-blue-400 hover:bg-blue-50;
+    @apply active:border-blue-400 active:bg-blue-50 touch-manipulation;
   }
 
   .upload-zone.drag-active {
@@ -137,7 +137,7 @@
     @apply relative aspect-square rounded-lg overflow-hidden;
     @apply bg-gray-200 cursor-pointer;
     @apply transition-all duration-200;
-    @apply hover:scale-105 active:scale-95;
+    @apply active:scale-95 touch-manipulation;
   }
 
   /* 載入動畫 */

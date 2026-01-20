@@ -38,13 +38,13 @@ class ErrorBoundary extends React.Component {
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="px-6 py-3 bg-blue-500 text-white rounded-lg active:bg-blue-600 transition-colors touch-manipulation"
             >
               重新載入
             </button>
             {process.env.NODE_ENV === 'development' && (
               <details className="mt-6 text-left">
-                <summary className="cursor-pointer text-sm text-gray-400 hover:text-white">
+                <summary className="cursor-pointer text-sm text-gray-400 active:text-white touch-manipulation">
                   錯誤詳情 (開發模式)
                 </summary>
                 <pre className="mt-2 p-3 bg-gray-800 rounded text-xs overflow-auto">

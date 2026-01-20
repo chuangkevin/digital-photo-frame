@@ -110,7 +110,7 @@ function MediaControls({
                 <button
                   onClick={onPrevious}
                   disabled={!hasPrevious}
-                  className="p-2 rounded-full hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="p-2 rounded-full active:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all touch-manipulation"
                 >
                   <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
@@ -120,7 +120,7 @@ function MediaControls({
                 {/* 播放/暫停 */}
                 <button
                   onClick={onPlayPause}
-                  className="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all"
+                  className="p-3 rounded-full bg-white/20 active:bg-white/30 transition-all touch-manipulation"
                 >
                   {isPlaying ? (
                     <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -137,7 +137,7 @@ function MediaControls({
                 <button
                   onClick={onNext}
                   disabled={!hasNext}
-                  className="p-2 rounded-full hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="p-2 rounded-full active:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all touch-manipulation"
                 >
                   <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
@@ -149,7 +149,7 @@ function MediaControls({
                   <div className="relative flex items-center">
                     <button
                       onClick={onToggleMute}
-                      className="p-2 rounded-full hover:bg-white/10 transition-all"
+                      className="p-2 rounded-full active:bg-white/10 transition-all touch-manipulation"
                       aria-label={isMuted ? '取消靜音' : '靜音'}
                     >
                       {isMuted || volume === 0 ? (
@@ -213,7 +213,7 @@ function MediaControls({
                 <button
                   onClick={onPrevious}
                   disabled={!hasPrevious}
-                  className="p-3 rounded-full hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="p-3 rounded-full active:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all touch-manipulation"
                 >
                   <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
@@ -223,7 +223,7 @@ function MediaControls({
                 {/* 暫停/繼續圖片輪播 */}
                 <button
                   onClick={onPlayPause}
-                  className="p-3 rounded-full bg-white/20 hover:bg-white/30 transition-all"
+                  className="p-3 rounded-full bg-white/20 active:bg-white/30 transition-all touch-manipulation"
                 >
                   <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
@@ -234,7 +234,7 @@ function MediaControls({
                 <button
                   onClick={onNext}
                   disabled={!hasNext}
-                  className="p-3 rounded-full hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="p-3 rounded-full active:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all touch-manipulation"
                 >
                   <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>

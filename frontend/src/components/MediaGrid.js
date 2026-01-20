@@ -112,42 +112,33 @@ function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false 
           {media.fileType.toUpperCase()}
         </div>
 
-        {/* 選擇指示器 */}
-        {isSelected && (
-          <div className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-blue-500 text-white rounded-full p-1">
-            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+        {/* 操作按鈕 - 直接顯示，針對觸控優化 */}
+        <div className="absolute top-1 right-1 sm:top-2 sm:right-2 flex gap-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect && onSelect(media);
+            }}
+            className="p-2 sm:p-2.5 bg-blue-500/90 text-white rounded-full active:bg-blue-600 active:scale-95 transition-transform touch-manipulation"
+            aria-label="預覽"
+          >
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
             </svg>
-          </div>
-        )}
+          </button>
 
-        {/* 懸浮操作按鈕 */}
-        <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-          <div className="flex space-x-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect && onSelect(media);
-              }}
-              className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-              </svg>
-            </button>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowDeleteConfirm(true);
-              }}
-              className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-              </svg>
-            </button>
-          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDeleteConfirm(true);
+            }}
+            className="p-2 sm:p-2.5 bg-red-500/90 text-white rounded-full active:bg-red-600 active:scale-95 transition-transform touch-manipulation"
+            aria-label="刪除"
+          >
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -184,13 +175,13 @@ function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false 
               <div className="flex space-x-2">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-3 py-2 text-sm bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                  className="flex-1 px-4 py-3 text-sm bg-gray-200 text-gray-800 rounded-lg active:bg-gray-300 touch-manipulation"
                 >
                   取消
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="flex-1 px-3 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                  className="flex-1 px-4 py-3 text-sm bg-red-500 text-white rounded-lg active:bg-red-600 touch-manipulation"
                 >
                   刪除
                 </button>

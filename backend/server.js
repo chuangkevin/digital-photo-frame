@@ -23,6 +23,47 @@ async function ensureDirectories() {
   await fs.ensureDir('./data');
 }
 
+/**
+ * 修復縮略圖路徑問題（自動遷移）
+ */
+async function fixThumbnailPaths() {
+  try {
+    const wrongThumbnailsDir = path.join(__dirname, 'thumbnails');
+    const correctThumbnailsDir = THUMBNAILS_PATH;
+
+    // 檢查錯誤位置的目錄是否存在
+    if (await fs.pathExists(wrongThumbnailsDir)) {
+      console.log('🔧 偵測到縮略圖路徑問題，開始自動修復...');
+
+      const files = await fs.readdir(wrongThumbnailsDir);
+      let movedCount = 0;
+
+      for (const file of files) {
+        const oldPath = path.join(wrongThumbnailsDir, file);
+        const newPath = path.join(correctThumbnailsDir, file);
+
+        // 移動檔案
+        await fs.move(oldPath, newPath, { overwrite: true });
+        movedCount++;
+
+        // 更新資料庫中的路徑
+        const { MediaFile } = require('./src/models');
+        await MediaFile.update(
+          { thumbnailPath: newPath },
+          { where: { thumbnailPath: oldPath } }
+        );
+      }
+
+      // 刪除空目錄
+      await fs.remove(wrongThumbnailsDir);
+
+      console.log(`✅ 已修復 ${movedCount} 個縮略圖路徑`);
+    }
+  } catch (error) {
+    console.warn('⚠️ 縮略圖路徑修復失敗:', error.message);
+  }
+}
+
 // 初始化資料庫
 const { testConnection, syncDatabase } = require('./src/models');
 const routes = require('./src/routes');
@@ -95,6 +136,9 @@ async function startServer() {
 
     // 同步資料庫（不強制重建）
     await syncDatabase(false);
+
+    // 自動修復縮略圖路徑問題
+    await fixThumbnailPaths();
 
     // 建立 HTTP 伺服器並初始化 Socket.IO
     const server = http.createServer(app);

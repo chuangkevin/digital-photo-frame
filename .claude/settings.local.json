@@ -16,7 +16,8 @@
       "Bash(docker port:*)",
       "Bash(curl.exe:*)",
       "Bash(docker exec:*)",
-      "Bash(docker-compose restart:*)"
+      "Bash(docker-compose restart:*)",
+      "Bash(sqlite3:*)"
     ]
   }
 }
