@@ -43,35 +43,51 @@ const generateThumbnail = async (inputPath, outputPath, size = 300) => {
 };
 
 /**
- * 產生影片縮圖（第一幀）
- * 注意：這裡需要 FFmpeg，在簡化版本中先跳過，使用預設圖片
+ * 產生影片縮圖（擷取第一幀）
  */
 const generateVideoThumbnail = async (inputPath, outputPath) => {
-  try {
-    // 簡化實作：使用預設的影片圖標
-    const defaultVideoIcon = path.join(__dirname, '../assets/video-icon.jpg');
+  const ffmpeg = require('fluent-ffmpeg');
+  const ffmpegStatic = require('ffmpeg-static');
+  const ffprobeInstaller = require('@ffprobe-installer/ffprobe');
 
-    if (await fs.pathExists(defaultVideoIcon)) {
-      await fs.copy(defaultVideoIcon, outputPath);
-    } else {
-      // 如果沒有預設圖標，建立一個簡單的佔位圖
-      await sharp({
-        create: {
-          width: 300,
-          height: 300,
-          channels: 3,
-          background: { r: 100, g: 100, b: 100 }
-        }
+  // 設定 ffmpeg 和 ffprobe 路徑
+  ffmpeg.setFfmpegPath(ffmpegStatic);
+  ffmpeg.setFfprobePath(ffprobeInstaller.path);
+
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .screenshots({
+        count: 1,
+        folder: path.dirname(outputPath),
+        filename: path.basename(outputPath),
+        size: '300x300',
+        timemarks: ['1'] // 在第 1 秒擷取
       })
-      .jpeg()
-      .toFile(outputPath);
-    }
+      .on('end', () => {
+        resolve(outputPath);
+      })
+      .on('error', async (err) => {
+        console.warn('FFmpeg 擷取縮圖失敗，使用備用方案:', err.message);
 
-    return outputPath;
-  } catch (error) {
-    console.error('產生影片縮圖失敗:', error);
-    throw error;
-  }
+        // 備用方案：建立灰色圖片
+        try {
+          await sharp({
+            create: {
+              width: 300,
+              height: 300,
+              channels: 3,
+              background: { r: 100, g: 100, b: 100 }
+            }
+          })
+          .jpeg()
+          .toFile(outputPath);
+
+          resolve(outputPath);
+        } catch (sharpErr) {
+          reject(sharpErr);
+        }
+      });
+  });
 };
 
 /**

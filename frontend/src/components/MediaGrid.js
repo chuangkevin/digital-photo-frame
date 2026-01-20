@@ -81,14 +81,14 @@ function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false 
         )}
 
         {/* 檔案類型標籤 */}
-        <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+        <div className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-black/70 text-white text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded">
           {media.fileType.toUpperCase()}
         </div>
 
         {/* 選擇指示器 */}
         {isSelected && (
-          <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-1">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <div className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-blue-500 text-white rounded-full p-1">
+            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
             </svg>
           </div>
@@ -126,12 +126,15 @@ function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false 
 
       {/* 媒體資訊 */}
       {showDetails && (
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 sm:p-2">
           <p className="text-white text-xs font-medium truncate">
             {media.originalName}
           </p>
-          <p className="text-white/70 text-xs">
+          <p className="text-white/70 text-xs hidden sm:block">
             {formatFileSize(media.fileSize)} • {formatDate(media.uploadTime)}
+          </p>
+          <p className="text-white/70 text-xs sm:hidden">
+            {formatFileSize(media.fileSize)}
           </p>
         </div>
       )}
@@ -299,13 +302,13 @@ function MediaGrid({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* 工具列 */}
-      <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 sm:items-center sm:justify-between">
+      <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4 sm:items-center sm:justify-between">
         {/* 篩選器 */}
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="touch-input text-sm"
+            className="touch-input text-sm flex-1 sm:flex-initial"
           >
             <option value="all">所有檔案 ({stats.total})</option>
             <option value="image">圖片 ({stats.images})</option>
@@ -320,7 +323,7 @@ function MediaGrid({
               setSortBy(newSortBy);
               setSortOrder(newSortOrder);
             }}
-            className="touch-input text-sm"
+            className="touch-input text-sm flex-1 sm:flex-initial"
           >
             <option value="uploadTime-desc">最新上傳</option>
             <option value="uploadTime-asc">最舊上傳</option>
@@ -336,14 +339,14 @@ function MediaGrid({
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center space-x-2"
+            className="flex items-center justify-between sm:justify-start space-x-2"
           >
-            <span className="text-sm text-gray-600">
-              已選擇 {selectedItems.length} 個檔案
+            <span className="text-xs sm:text-sm text-gray-600">
+              已選擇 {selectedItems.length} 個
             </span>
             <button
               onClick={handleBatchDelete}
-              className="touch-button-danger text-sm px-4 py-2"
+              className="touch-button-danger text-xs sm:text-sm px-3 sm:px-4 py-2"
             >
               批次刪除
             </button>

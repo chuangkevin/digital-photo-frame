@@ -32,14 +32,15 @@ const uploadMedia = asyncHandler(async (req, res) => {
     }
 
     // 產生縮圖
-    const thumbnailsDir = process.env.UPLOAD_PATH ?
-      path.join(process.env.UPLOAD_PATH, '../thumbnails') :
-      './uploads/thumbnails';
+    const uploadsRoot = process.env.UPLOAD_PATH || './uploads';
+    const thumbnailsDir = path.join(uploadsRoot, '..', 'thumbnails');
 
     await fs.ensureDir(thumbnailsDir);
 
     const thumbnailFilename = `thumb_${file.filename}`;
     const thumbnailPath = path.join(thumbnailsDir, thumbnailFilename);
+
+    console.log(`生成縮略圖: ${file.originalname} -> ${thumbnailPath}`);
 
     await generateThumbnailByType(file.path, thumbnailPath, fileType);
 

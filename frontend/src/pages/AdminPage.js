@@ -48,33 +48,33 @@ function SystemStatus() {
       <h3 className="text-lg font-semibold text-gray-900 mb-4">系統狀態</h3>
 
       {status ? (
-        <div className="grid grid-cols-2 tablet:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="text-center p-2">
+            <div className="text-xl sm:text-2xl font-bold text-blue-600">
               {status.mediaCount}
             </div>
-            <div className="text-sm text-gray-500">總檔案數</div>
+            <div className="text-xs sm:text-sm text-gray-500">總檔案數</div>
           </div>
 
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="text-center p-2">
+            <div className="text-xl sm:text-2xl font-bold text-green-600">
               {status.breakdown.images}
             </div>
-            <div className="text-sm text-gray-500">圖片</div>
+            <div className="text-xs sm:text-sm text-gray-500">圖片</div>
           </div>
 
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">
+          <div className="text-center p-2">
+            <div className="text-xl sm:text-2xl font-bold text-purple-600">
               {status.breakdown.videos}
             </div>
-            <div className="text-sm text-gray-500">影片</div>
+            <div className="text-xs sm:text-sm text-gray-500">影片</div>
           </div>
 
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">
+          <div className="text-center p-2">
+            <div className="text-xl sm:text-2xl font-bold text-orange-600">
               {status.breakdown.audios}
             </div>
-            <div className="text-sm text-gray-500">音訊</div>
+            <div className="text-xs sm:text-sm text-gray-500">音訊</div>
           </div>
         </div>
       ) : (
@@ -196,7 +196,7 @@ function AdminPage() {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={goToDisplay}
                 className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
@@ -205,16 +205,17 @@ function AdminPage() {
                   <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                 </svg>
               </button>
-              <h1 className="text-xl font-semibold text-gray-900">
+              <h1 className="text-base sm:text-xl font-semibold text-gray-900">
                 數位相框管理
               </h1>
             </div>
 
             <button
               onClick={goToDisplay}
-              className="touch-button-primary"
+              className="touch-button-primary text-sm sm:text-base px-3 sm:px-4 py-2"
             >
-              返回展示
+              <span className="hidden sm:inline">返回展示</span>
+              <span className="sm:hidden">返回</span>
             </button>
           </div>
         </div>
@@ -246,20 +247,20 @@ function AdminPage() {
           {/* 行動版標籤切換 */}
           <div className="lg:hidden mb-6">
             <div className="border-b border-gray-200">
-              <nav className="-mb-px flex space-x-8 overflow-x-auto">
+              <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto pb-px">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                    className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex-shrink-0 ${
                       activeTab === tab.id
                         ? 'border-blue-500 text-blue-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
-                    <span className="flex items-center">
-                      <span className="mr-2">{tab.icon}</span>
-                      {tab.name}
+                    <span className="flex items-center gap-2">
+                      {tab.icon}
+                      <span>{tab.name}</span>
                     </span>
                   </button>
                 ))}
