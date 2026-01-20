@@ -81,6 +81,7 @@ export const mediaAPI = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      timeout: 300000, // 5 分鐘超時（用於大檔案上傳和後處理）
       onUploadProgress: onUploadProgress ? (progressEvent) => {
         const percentCompleted = Math.round(
           (progressEvent.loaded * 100) / progressEvent.total
