@@ -18,7 +18,13 @@
       "Bash(docker exec:*)",
       "Bash(docker-compose restart:*)",
       "Bash(sqlite3:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(git -C \"D:\\\\Projects\\\\digital-photo-frame\" branch --show-current)",
+      "Bash(git -C \"D:\\\\Projects\\\\digital-photo-frame\" log --oneline -3)",
+      "Bash(git -C \"D:\\\\Projects\\\\digital-photo-frame\" status)",
+      "Bash(git -C \"D:\\\\Projects\\\\digital-photo-frame\" ls-tree:*)",
+      "Bash(git -C \"D:\\\\Projects\\\\digital-photo-frame\" log --all --oneline --decorate -5)",
+      "Bash(git -C \"D:\\\\Projects\\\\digital-photo-frame\" show --name-only --pretty=format: 3008979)"
     ]
   }
 }
