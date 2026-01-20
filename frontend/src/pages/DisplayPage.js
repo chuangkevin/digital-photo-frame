@@ -390,15 +390,15 @@ function DisplayPage() {
         )}
       </AnimatePresence>
 
-      {/* 全螢幕按鈕 - 僅在顯示控制項時顯示 */}
+      {/* 全螢幕按鈕 - 右下角 */}
       <AnimatePresence>
         {state.display.showControls && (
           <motion.button
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            exit={{ opacity: 0, y: 20 }}
             onClick={toggleFullscreen}
-            className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-white active:bg-black/90 transition-colors touch-manipulation"
+            className="absolute bottom-20 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-white active:bg-black/90 transition-colors touch-manipulation"
             aria-label={isFullscreen ? '退出全螢幕' : '進入全螢幕'}
           >
             {isFullscreen ? (
