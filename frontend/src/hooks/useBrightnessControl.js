@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
  * 1. 自動根據時間範圍調整亮度（夜間/日間）
  * 2. 支援手動切換模式
  * 3. 使用 sessionStorage 持久化使用者選擇
- * 4. 自動恢復機制：下次排程時間到來時重置為自動模式
+ * 4. 手動模式會持續有效，直到使用者再次切換（覆蓋自動設定）
  */
 export const useBrightnessControl = (playbackConfig) => {
   // 從 sessionStorage 讀取上次的模式設定
@@ -74,10 +74,12 @@ export const useBrightnessControl = (playbackConfig) => {
    * 切換亮度模式
    *
    * 邏輯：
-   * - 自動夜間 → 手動日間（取消夜間降亮度）
-   * - 自動日間 → 手動夜間（啟用夜間降亮度）
+   * - 自動夜間 → 手動日間（取消夜間降亮度，持續有效）
+   * - 自動日間 → 手動夜間（啟用夜間降亮度，持續有效）
    * - 手動日間 → 手動夜間
-   * - 手動夜間 → 自動模式
+   * - 手動夜間 → 自動模式（回到根據時間自動調整）
+   *
+   * 注意：手動模式會一直保持，不會因為時間變化而自動重置
    */
   const toggleBrightnessMode = useCallback(() => {
     let newMode;
@@ -101,53 +103,39 @@ export const useBrightnessControl = (playbackConfig) => {
   }, [brightnessMode, isNightTime]);
 
   /**
-   * 重置為自動模式（當下次排程時間到來時調用）
-   *
-   * 規則：
-   * - 如果之前是手動日間，現在進入夜間時段 → 重置為自動
-   * - 如果之前是手動夜間，現在進入日間時段 → 重置為自動
+   * 更新夜間時間狀態
+   * 只更新 isNightTime 狀態，不會影響手動模式
    */
-  const resetToAutoMode = useCallback(() => {
-    if (!playbackConfig?.nightModeEnabled) return;
-
-    const storedMode = sessionStorage.getItem('brightnessMode');
-
-    // 只有在手動模式時才檢查是否需要重置
-    if (storedMode && storedMode.startsWith('manual-')) {
-      const nightTime = checkIsNightTime(playbackConfig);
-      const wasManualDay = storedMode === 'manual-day';
-      const wasManualNight = storedMode === 'manual-night';
-
-      // 如果之前是手動日間，現在進入夜間時段，重置為自動
-      if (wasManualDay && nightTime) {
-        setBrightnessMode('auto');
-        sessionStorage.setItem('brightnessMode', 'auto');
-      }
-      // 如果之前是手動夜間，現在進入日間時段，重置為自動
-      else if (wasManualNight && !nightTime) {
-        setBrightnessMode('auto');
-        sessionStorage.setItem('brightnessMode', 'auto');
-      }
+  const updateNightTimeStatus = useCallback(() => {
+    if (!playbackConfig?.nightModeEnabled) {
+      setIsNightTime(false);
+      return;
     }
+
+    const nightTime = checkIsNightTime(playbackConfig);
+    setIsNightTime(nightTime);
   }, [playbackConfig, checkIsNightTime]);
 
   /**
    * 定期檢查時間和亮度
+   * 手動模式會持續有效，不會自動重置
    */
   useEffect(() => {
     // 初始計算
+    updateNightTimeStatus();
     const initialBrightness = calculateBrightness();
     setCurrentBrightness(initialBrightness);
 
-    // 每分鐘檢查一次
+    // 每分鐘更新一次夜間時間狀態和亮度
+    // 注意：手動模式會一直保持，直到使用者再次切換
     const interval = setInterval(() => {
-      resetToAutoMode();
+      updateNightTimeStatus();
       const newBrightness = calculateBrightness();
       setCurrentBrightness(newBrightness);
     }, 60000); // 60 秒
 
     return () => clearInterval(interval);
-  }, [calculateBrightness, resetToAutoMode]);
+  }, [calculateBrightness, updateNightTimeStatus]);
 
   /**
    * 當 playbackConfig 或 brightnessMode 改變時，立即重新計算亮度
