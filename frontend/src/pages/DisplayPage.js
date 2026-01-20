@@ -17,6 +17,7 @@ function DisplayPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
   const [loadStats, setLoadStats] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const {
     currentMedia,
@@ -84,6 +85,34 @@ function DisplayPage() {
       setIsLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 全螢幕切換功能
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        // 進入全螢幕
+        await document.documentElement.requestFullscreen();
+      } else {
+        // 退出全螢幕
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.error('全螢幕切換失敗:', error);
+    }
+  }, []);
+
+  // 監聽全螢幕狀態變化
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
   }, []);
 
   // 初始化載入 (只在組件掛載時執行一次)
@@ -349,6 +378,32 @@ function DisplayPage() {
               </div>
             )}
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 全螢幕按鈕 - 僅在顯示控制項時顯示 */}
+      <AnimatePresence>
+        {state.display.showControls && (
+          <motion.button
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            onClick={toggleFullscreen}
+            className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-white active:bg-black/90 transition-colors touch-manipulation"
+            aria-label={isFullscreen ? '退出全螢幕' : '進入全螢幕'}
+          >
+            {isFullscreen ? (
+              // 退出全螢幕圖示
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M15 9h4.5M15 9V4.5M15 9l5.25-5.25M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+              </svg>
+            ) : (
+              // 進入全螢幕圖示
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            )}
+          </motion.button>
         )}
       </AnimatePresence>
 
