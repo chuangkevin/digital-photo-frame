@@ -116,7 +116,7 @@ export function useMediaPlayer() {
       const nextIndex = (currentMediaIndex + 1) % mediaFiles.length;
       const nextMedia = mediaFiles[nextIndex];
       if (nextMedia) {
-        const mediaUrl = `${getApiBaseUrl()}/api/files/${nextMedia.filename}?t=${nextMedia.id}`;
+        const mediaUrl = `${getApiBaseUrl()}/api/files/${nextMedia.filename}`;
         if (nextMedia.fileType === 'image') {
           const img = new Image();
           img.src = mediaUrl;

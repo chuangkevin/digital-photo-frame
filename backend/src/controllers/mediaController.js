@@ -242,7 +242,16 @@ const serveMedia = asyncHandler(async (req, res) => {
     });
   }
 
-  res.sendFile(path.resolve(mediaFile.filePath));
+  const filePath = path.resolve(mediaFile.filePath);
+
+  // 設定 HTTP 快取標頭
+  // Cache-Control: 1 年快取，因為檔案名稱包含唯一 ID，檔案內容不會改變
+  res.set({
+    'Cache-Control': 'public, max-age=31536000, immutable', // 1 年
+    'Last-Modified': new Date(mediaFile.uploadTime).toUTCString(),
+  });
+
+  res.sendFile(filePath);
 });
 
 /**
@@ -261,7 +270,15 @@ const serveThumbnail = asyncHandler(async (req, res) => {
     });
   }
 
-  res.sendFile(path.resolve(mediaFile.thumbnailPath));
+  const thumbnailPath = path.resolve(mediaFile.thumbnailPath);
+
+  // 設定 HTTP 快取標頭
+  res.set({
+    'Cache-Control': 'public, max-age=31536000, immutable', // 1 年
+    'Last-Modified': new Date(mediaFile.uploadTime).toUTCString(),
+  });
+
+  res.sendFile(thumbnailPath);
 });
 
 module.exports = {

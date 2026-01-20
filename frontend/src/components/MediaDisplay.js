@@ -18,10 +18,16 @@ function MediaDisplay({
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [loadStartTime, setLoadStartTime] = useState(null);
+  const [loadTime, setLoadTime] = useState(null);
+  const [fromCache, setFromCache] = useState(false);
 
   useEffect(() => {
     setImageLoaded(false);
     setHasError(false);
+    setLoadStartTime(performance.now());
+    setLoadTime(null);
+    setFromCache(false);
 
     // 處理已快取圖片（特別是行動裝置）
     // 有時快取圖片不會觸發 onLoad 事件
@@ -52,8 +58,48 @@ function MediaDisplay({
     );
   }
 
-  // 添加時間戳避免行動裝置快取問題
-  const mediaUrl = `${getApiBaseUrl()}/api/files/${media.filename}?t=${media.id}`;
+  // 媒體檔案 URL（後端已設定適當的快取標頭）
+  const mediaUrl = `${getApiBaseUrl()}/api/files/${media.filename}`;
+
+  // 計算載入時間和檢測是否來自快取
+  const handleMediaLoaded = (e) => {
+    const endTime = performance.now();
+    const duration = endTime - loadStartTime;
+    setLoadTime(duration);
+
+    let isCached = false;
+
+    // 使用 Performance API 檢測是否來自快取
+    try {
+      const perfEntries = performance.getEntriesByName(mediaUrl, 'resource');
+      if (perfEntries.length > 0) {
+        const entry = perfEntries[perfEntries.length - 1];
+        // transferSize 為 0 表示來自快取
+        isCached = entry.transferSize === 0;
+        setFromCache(isCached);
+      }
+    } catch (error) {
+      console.warn('無法讀取 Performance API:', error);
+    }
+
+    const loadStats = {
+      loadTime: duration,
+      fromCache: isCached,
+      fileSize: media.fileSize,
+      fileName: media.originalName,
+    };
+
+    console.log(`📊 載入統計 - ${media.originalName}:`, {
+      時間: `${duration.toFixed(0)}ms`,
+      來源: loadStats.fromCache ? '快取' : '網路',
+      檔案大小: `${(media.fileSize / 1024 / 1024).toFixed(2)}MB`,
+    });
+
+    // 將載入統計資訊傳遞給父組件
+    if (onLoad) {
+      onLoad(e, loadStats);
+    }
+  };
 
   // 圖片顯示
   if (media.fileType === 'image') {
@@ -89,9 +135,9 @@ function MediaDisplay({
                 scale: imageLoaded ? 1 : 0.95,
               }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              onLoad={() => {
+              onLoad={(e) => {
                 setImageLoaded(true);
-                onLoad && onLoad();
+                handleMediaLoaded(e);
               }}
               onError={(e) => {
                 setHasError(true);
@@ -126,7 +172,7 @@ function MediaDisplay({
           autoPlay
           muted={isMuted}
           playsInline
-          onLoadedData={onLoad}
+          onLoadedData={handleMediaLoaded}
           onError={onError}
           onEnded={onEnded}
           onTimeUpdate={onTimeUpdate}
@@ -172,7 +218,7 @@ function MediaDisplay({
             src={mediaUrl}
             autoPlay
             muted={isMuted}
-            onLoadedData={onLoad}
+            onLoadedData={handleMediaLoaded}
             onError={onError}
             onEnded={onEnded}
             onTimeUpdate={onTimeUpdate}

@@ -16,6 +16,7 @@ function DisplayPage() {
   const { state, actions } = useApp();
   const [isLoading, setIsLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
+  const [loadStats, setLoadStats] = useState(null);
 
   const {
     currentMedia,
@@ -136,8 +137,11 @@ function DisplayPage() {
   }, [loadData]);
 
   // 媒體載入完成
-  const handleMediaLoadComplete = useCallback(() => {
+  const handleMediaLoadComplete = useCallback((e, stats) => {
     handleMediaLoaded();
+    if (stats) {
+      setLoadStats(stats);
+    }
   }, [handleMediaLoaded]);
 
   // 媒體載入錯誤
@@ -324,6 +328,26 @@ function DisplayPage() {
                 <span className="ml-2">• {currentConfig.name}</span>
               )}
             </p>
+            {loadStats && (
+              <div className="text-xs text-white/60 mt-2 pt-2 border-t border-white/20">
+                <div className="flex items-center gap-2">
+                  <span>
+                    {loadStats.fromCache ? '📦 快取' : '🌐 網路'}
+                  </span>
+                  <span>•</span>
+                  <span>
+                    {loadStats.loadTime < 1000
+                      ? `${Math.round(loadStats.loadTime)}ms`
+                      : `${(loadStats.loadTime / 1000).toFixed(2)}s`
+                    }
+                  </span>
+                  <span>•</span>
+                  <span>
+                    {(loadStats.fileSize / 1024 / 1024).toFixed(2)}MB
+                  </span>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
