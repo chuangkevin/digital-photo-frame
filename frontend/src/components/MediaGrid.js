@@ -2,6 +2,8 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mediaAPI, getApiBaseUrl } from '../services/api';
 import { useApp } from '../contexts/AppContext';
+import { clearMediaCache } from '../services/cacheService';
+import MediaPreview from './MediaPreview';
 
 /**
  * 媒體項目組件
@@ -9,6 +11,7 @@ import { useApp } from '../contexts/AppContext';
 function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false }) {
   const [imageError, setImageError] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const thumbnailUrl = `${getApiBaseUrl()}/api/thumbnails/${media.filename}`;
 
@@ -20,6 +23,21 @@ function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false 
       console.error('刪除失敗:', error);
     }
   }, [media.id, onDelete]);
+
+  const handleImageError = useCallback((e) => {
+    console.error('縮略圖加載失敗:', {
+      filename: media.filename,
+      thumbnailUrl,
+      error: e
+    });
+    setImageError(true);
+    setImageLoaded(false);
+  }, [media.filename, thumbnailUrl]);
+
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true);
+    setImageError(false);
+  }, []);
 
   // 格式化檔案大小
   const formatFileSize = (bytes) => {
@@ -54,12 +72,21 @@ function MediaItem({ media, onSelect, onDelete, isSelected, showDetails = false 
       {/* 縮圖 */}
       <div className="relative w-full h-full">
         {!imageError ? (
-          <img
-            src={thumbnailUrl}
-            alt={media.originalName}
-            className="w-full h-full object-cover"
-            onError={() => setImageError(true)}
-          />
+          <>
+            <img
+              src={thumbnailUrl}
+              alt={media.originalName}
+              className="w-full h-full object-cover"
+              onError={handleImageError}
+              onLoad={handleImageLoad}
+              loading="lazy"
+            />
+            {!imageLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                <div className="loading-spinner w-6 h-6"></div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-100">
             {media.fileType === 'image' && (
@@ -193,6 +220,7 @@ function MediaGrid({
   const [filter, setFilter] = useState('all'); // 'all', 'image', 'video', 'audio'
   const [sortBy, setSortBy] = useState('uploadTime'); // 'uploadTime', 'name', 'size'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
+  const [previewMedia, setPreviewMedia] = useState(null); // 預覽的媒體
 
   // 篩選和排序媒體列表
   const filteredAndSortedMedia = useMemo(() => {
@@ -231,17 +259,24 @@ function MediaGrid({
     return filtered;
   }, [mediaList, filter, sortBy, sortOrder]);
 
-  // 處理項目選擇
+  // 處理項目選擇（打開預覽）
   const handleItemSelect = useCallback((media) => {
-    if (onItemSelect) {
-      onItemSelect(media);
-    }
-  }, [onItemSelect]);
+    setPreviewMedia(media);
+  }, []);
 
   // 處理項目刪除
   const handleItemDelete = useCallback(async (mediaId) => {
     try {
+      // 找到要刪除的媒體檔案資訊
+      const mediaToDelete = mediaList.find(m => m.id === mediaId);
+
       await mediaAPI.delete(mediaId);
+
+      // 清除該媒體的快取
+      if (mediaToDelete) {
+        await clearMediaCache(mediaToDelete.filename);
+        console.log(`已清除媒體快取: ${mediaToDelete.filename}`);
+      }
 
       // 更新全域狀態
       dispatch({
@@ -254,16 +289,25 @@ function MediaGrid({
       console.error('刪除媒體失敗:', error);
       throw error;
     }
-  }, [dispatch, ActionTypes, onItemDelete]);
+  }, [mediaList, dispatch, ActionTypes, onItemDelete]);
 
   // 批次刪除
   const handleBatchDelete = useCallback(async () => {
     if (selectedItems.length === 0) return;
 
     try {
+      // 找到要刪除的媒體檔案資訊
+      const mediaToDelete = mediaList.filter(m => selectedItems.includes(m.id));
+
       await Promise.all(
         selectedItems.map(mediaId => mediaAPI.delete(mediaId))
       );
+
+      // 批次清除快取
+      await Promise.all(
+        mediaToDelete.map(media => clearMediaCache(media.filename))
+      );
+      console.log(`已批次清除 ${mediaToDelete.length} 個媒體快取`);
 
       // 更新全域狀態
       selectedItems.forEach(mediaId => {
@@ -277,7 +321,7 @@ function MediaGrid({
     } catch (error) {
       console.error('批次刪除失敗:', error);
     }
-  }, [selectedItems, dispatch, ActionTypes, onBatchDelete]);
+  }, [selectedItems, mediaList, dispatch, ActionTypes, onBatchDelete]);
 
   // 統計資訊
   const stats = useMemo(() => {
@@ -413,6 +457,14 @@ function MediaGrid({
             ))}
           </AnimatePresence>
         </motion.div>
+      )}
+
+      {/* 媒體預覽 */}
+      {previewMedia && (
+        <MediaPreview
+          media={previewMedia}
+          onClose={() => setPreviewMedia(null)}
+        />
       )}
     </div>
   );

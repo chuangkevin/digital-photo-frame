@@ -6,6 +6,7 @@ import MediaGrid from '../components/MediaGrid';
 import PlaybackConfig from '../components/PlaybackConfig';
 import { useApp } from '../contexts/AppContext';
 import { displayAPI } from '../services/api';
+import { clearOrphanedCache, clearAllMediaCache, getCacheStats } from '../services/cacheService';
 
 /**
  * 系統狀態組件
@@ -110,12 +111,55 @@ function AdminPage() {
   const { state, actions } = useApp();
   const [activeTab, setActiveTab] = useState('media'); // 'media', 'upload', 'playback', 'status'
   const [selectedMedia, setSelectedMedia] = useState([]);
+  const [cacheStats, setCacheStats] = useState(null);
+  const [clearingCache, setClearingCache] = useState(false);
 
-  // 載入媒體列表 (只在組件掛載時執行一次)
+  // 載入媒體列表和快取統計 (只在組件掛載時執行一次)
   useEffect(() => {
     actions.loadMediaList();
+    loadCacheStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 載入快取統計
+  const loadCacheStats = useCallback(async () => {
+    const stats = await getCacheStats();
+    setCacheStats(stats);
+  }, []);
+
+  // 清除無效快取
+  const handleClearOrphanedCache = useCallback(async () => {
+    setClearingCache(true);
+    try {
+      const deletedCount = await clearOrphanedCache(state.media.list);
+      alert(`已清除 ${deletedCount} 個無效快取`);
+      await loadCacheStats();
+    } catch (error) {
+      console.error('清除無效快取失敗:', error);
+      alert('清除無效快取失敗');
+    } finally {
+      setClearingCache(false);
+    }
+  }, [state.media.list, loadCacheStats]);
+
+  // 清除所有媒體快取
+  const handleClearAllCache = useCallback(async () => {
+    if (!window.confirm('確定要清除所有媒體快取嗎？下次載入媒體時將重新從伺服器下載。')) {
+      return;
+    }
+
+    setClearingCache(true);
+    try {
+      const deletedCount = await clearAllMediaCache();
+      alert(`已清除 ${deletedCount} 個快取檔案`);
+      await loadCacheStats();
+    } catch (error) {
+      console.error('清除所有快取失敗:', error);
+      alert('清除所有快取失敗');
+    } finally {
+      setClearingCache(false);
+    }
+  }, [loadCacheStats]);
 
   // 處理檔案上傳完成
   const handleUploadComplete = useCallback((uploadedFile) => {
@@ -280,7 +324,49 @@ function AdminPage() {
             >
               {activeTab === 'media' && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-gray-900">媒體管理</h2>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h2 className="text-2xl font-bold text-gray-900">媒體管理</h2>
+
+                    {/* 快取管理按鈕 */}
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <button
+                        onClick={handleClearOrphanedCache}
+                        disabled={clearingCache}
+                        className="touch-button text-sm px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {clearingCache ? '處理中...' : '清除無效快取'}
+                      </button>
+                      <button
+                        onClick={handleClearAllCache}
+                        disabled={clearingCache}
+                        className="touch-button text-sm px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {clearingCache ? '處理中...' : '清除所有快取'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 快取統計 */}
+                  {cacheStats && cacheStats.supported && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-blue-900 mb-2">快取統計</h4>
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="text-blue-600">媒體快取</span>
+                          <div className="font-semibold text-blue-900">{cacheStats.mediaCached}</div>
+                        </div>
+                        <div>
+                          <span className="text-blue-600">縮略圖快取</span>
+                          <div className="font-semibold text-blue-900">{cacheStats.thumbnailsCached}</div>
+                        </div>
+                        <div>
+                          <span className="text-blue-600">總計</span>
+                          <div className="font-semibold text-blue-900">{cacheStats.totalCached}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <MediaGrid
                     mediaList={state.media.list}
                     loading={state.media.loading}
