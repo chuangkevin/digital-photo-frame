@@ -355,7 +355,7 @@ function DisplayPage() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-white"
+            className="absolute top-4 left-4 z-50 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-white"
           >
             <h3 className="font-medium text-sm text-shadow">
               {currentMedia.originalName}
