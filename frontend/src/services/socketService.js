@@ -1,6 +1,8 @@
 import { io } from 'socket.io-client';
 
 let socket = null;
+let initialServerStartTime = null; // 記錄初始伺服器啟動時間
+let hasShownRestartNotification = false; // 防止重複顯示通知
 
 // Socket 事件類型（需與後端一致）
 export const SocketEvents = {
@@ -53,6 +55,34 @@ export const initSocket = () => {
 
   socket.on('connect', () => {
     console.log('✅ WebSocket 已連接:', socket.id);
+  });
+
+  // 監聽伺服器資訊（用於檢測重啟）
+  socket.on('server-info', (data) => {
+    console.log('📊 收到伺服器資訊:', data);
+
+    if (initialServerStartTime === null) {
+      // 首次連接，記錄啟動時間
+      initialServerStartTime = data.startTime;
+      console.log('📝 記錄初始伺服器啟動時間:', new Date(data.startTime).toLocaleString());
+    } else if (data.startTime !== initialServerStartTime && !hasShownRestartNotification) {
+      // 啟動時間改變，表示後端重啟了
+      console.warn('🔄 檢測到後端重啟，建議重新載入頁面');
+      hasShownRestartNotification = true;
+
+      // 顯示通知並詢問是否重新載入
+      const shouldReload = window.confirm(
+        '偵測到後端服務已重新啟動\n\n建議重新載入頁面以確保功能正常運作。\n\n是否立即重新載入？'
+      );
+
+      if (shouldReload) {
+        window.location.reload();
+      } else {
+        // 如果用戶選擇不重新載入，更新記錄的啟動時間（避免重複提示）
+        initialServerStartTime = data.startTime;
+        hasShownRestartNotification = false;
+      }
+    }
   });
 
   socket.on('disconnect', (reason) => {
@@ -112,4 +142,5 @@ export const disconnectSocket = () => {
     socket = null;
     console.log('📴 WebSocket 已斷開');
   }
+  // 注意：不重置 initialServerStartTime，以便下次連接時能檢測到重啟
 };

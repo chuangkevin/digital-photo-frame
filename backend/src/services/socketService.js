@@ -2,6 +2,9 @@ const { Server } = require('socket.io');
 
 let io = null;
 
+// 記錄伺服器啟動時間（用於檢測重啟）
+const SERVER_START_TIME = Date.now();
+
 /**
  * 初始化 Socket.IO 服務
  */
@@ -15,6 +18,12 @@ const initSocketService = (server) => {
 
   io.on('connection', (socket) => {
     console.log(`📡 客戶端連接: ${socket.id}`);
+
+    // 發送伺服器啟動時間給客戶端（用於檢測重啟）
+    socket.emit('server-info', {
+      startTime: SERVER_START_TIME,
+      version: require('../../package.json').version,
+    });
 
     // 加入展示頁面房間
     socket.on('join-display', () => {
