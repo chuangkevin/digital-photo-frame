@@ -3,11 +3,31 @@ const path = require('path');
 const fs = require('fs-extra');
 
 /**
+ * 自動旋轉圖片（根據 EXIF orientation）
+ * @param {string} inputPath - 輸入圖片路徑
+ * @returns {Promise<void>} 直接覆蓋原檔案
+ */
+const autoRotateImage = async (inputPath) => {
+  try {
+    const buffer = await sharp(inputPath)
+      .rotate() // 自動根據 EXIF orientation 旋轉
+      .toBuffer();
+
+    // 覆蓋原檔案
+    await sharp(buffer).toFile(inputPath);
+  } catch (error) {
+    console.error('自動旋轉圖片失敗:', error);
+    throw error;
+  }
+};
+
+/**
  * 產生圖片縮圖
  */
 const generateThumbnail = async (inputPath, outputPath, size = 300) => {
   try {
     await sharp(inputPath)
+      .rotate() // 自動根據 EXIF orientation 旋轉
       .resize(size, size, {
         fit: 'cover',
         position: 'center'
@@ -107,6 +127,7 @@ const generateThumbnailByType = async (filePath, outputPath, fileType) => {
 };
 
 module.exports = {
+  autoRotateImage,
   generateThumbnail,
   generateVideoThumbnail,
   generateAudioThumbnail,

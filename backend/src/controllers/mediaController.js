@@ -2,7 +2,8 @@ const path = require('path');
 const fs = require('fs-extra');
 const { MediaFile } = require('../models');
 const { getFileType, deleteFile, getFileSize } = require('../utils/fileUtils');
-const { generateThumbnailByType } = require('../utils/imageUtils');
+const { generateThumbnailByType, autoRotateImage } = require('../utils/imageUtils');
+const { getVideoMetadata, isVideo, autoRotateVideo } = require('../utils/videoUtils');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { emitToDisplay, emitToAll, SocketEvents } = require('../services/socketService');
 
@@ -21,6 +22,15 @@ const uploadMedia = asyncHandler(async (req, res) => {
   const fileType = getFileType(file.mimetype);
 
   try {
+    // 自動旋轉媒體到正確方向
+    if (fileType === 'image') {
+      console.log('自動旋轉圖片:', file.originalname);
+      await autoRotateImage(file.path);
+    } else if (fileType === 'video') {
+      console.log('自動旋轉影片:', file.originalname);
+      await autoRotateVideo(file.path);
+    }
+
     // 產生縮圖
     const thumbnailsDir = process.env.UPLOAD_PATH ?
       path.join(process.env.UPLOAD_PATH, '../thumbnails') :
@@ -42,6 +52,17 @@ const uploadMedia = asyncHandler(async (req, res) => {
       decodedOriginalName = file.originalname;
     }
 
+    // 如果是影片，讀取 metadata（只讀取時長）
+    let duration = null;
+    if (isVideo(file.mimetype)) {
+      try {
+        const videoMetadata = await getVideoMetadata(file.path);
+        duration = videoMetadata.duration;
+      } catch (error) {
+        console.warn('無法讀取影片 metadata:', error);
+      }
+    }
+
     // 儲存到資料庫
     const mediaFile = await MediaFile.create({
       filename: file.filename,
@@ -51,6 +72,7 @@ const uploadMedia = asyncHandler(async (req, res) => {
       fileType: fileType,
       mimeType: file.mimetype,
       fileSize: file.size,
+      duration: duration,
       tags: req.body.tags || null,
     });
 
