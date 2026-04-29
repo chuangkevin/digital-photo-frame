@@ -81,7 +81,7 @@
 
 1. **複製專案**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/digital-photo-frame.git
+   git clone https://github.com/chuangkevin/digital-photo-frame.git
    cd digital-photo-frame
    ```
 
