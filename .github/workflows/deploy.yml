@@ -51,20 +51,30 @@ jobs:
           ssh -i ~/.ssh/deploy_key ${DEPLOY_USER}@${DEPLOY_SERVER_IP} "
             set -e
 
+            test \"\$(uname -n)\" = rpi-docker || {
+              echo 'Unexpected deployment host; expected rpi-docker.'
+              exit 1
+            }
+
             echo '📁 Navigating to deployment directory...'
             cd ${DEPLOY_PATH}
+
+            echo '📦 Saving current images for rollback...'
+            rollback_time=\$(date -u +%Y%m%dT%H%M%SZ)
+            for service in frontend backend; do
+              current_container=\$(docker compose -f docker-compose.yml ps -q \"\$service\")
+              test -n \"\$current_container\"
+              previous_image=\$(docker inspect --format '{{.Image}}' \"\$current_container\")
+              rollback_tag=\"digital-photo-frame-\$service:rollback-\$rollback_time\"
+              docker image tag \"\$previous_image\" \"\$rollback_tag\"
+              echo \"Rollback image: \$rollback_tag\"
+            done
 
             echo '🔄 Pulling latest Docker images...'
             docker compose -f docker-compose.yml pull
 
-            echo '🛑 Stopping existing containers...'
-            docker compose -f docker-compose.yml down
-
-            echo '🚀 Starting updated containers...'
+            echo '🚀 Updating containers...'
             docker compose -f docker-compose.yml up -d
-
-            echo '🧹 Cleaning up old images...'
-            docker image prune -af --filter \"until=24h\" || true
 
             echo '✅ Deployment completed successfully!'
             docker compose -f docker-compose.yml ps
@@ -72,11 +82,15 @@ jobs:
 
       - name: Health Check
         run: |
+          set -o pipefail
           echo "🏥 Performing health check..."
           sleep 10
 
           # 檢查 backend health
           curl -f http://${{ secrets.DEPLOY_SERVER_IP }}:3001/health || exit 1
+
+          # 確認前端 nginx 回傳 backend 的健康狀態
+          curl -fsS http://${{ secrets.DEPLOY_SERVER_IP }}:4123/health | jq -e '.status == "healthy"'
 
           echo "✅ Health check passed!"
 

@@ -1,6 +1,6 @@
 {
   "name": "digital-photo-frame-frontend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "數位相框前端應用",
   "private": true,
   "dependencies": {
