@@ -51,10 +51,13 @@ jobs:
           ssh -i ~/.ssh/deploy_key ${DEPLOY_USER}@${DEPLOY_SERVER_IP} "
             set -e
 
-            test \"\$(uname -n)\" = rpi-docker || {
-              echo 'Unexpected deployment host; expected rpi-docker.'
-              exit 1
-            }
+            case "\$(uname -n)" in
+              NAS-918*|nas-918*|rpi-docker*) ;;
+              *)
+                echo "Unexpected deployment host: \$(uname -n)"
+                exit 1
+                ;;
+            esac
 
             echo '📁 Navigating to deployment directory...'
             cd ${DEPLOY_PATH}
@@ -62,12 +65,13 @@ jobs:
             echo '📦 Saving current images for rollback...'
             rollback_time=\$(date -u +%Y%m%dT%H%M%SZ)
             for service in frontend backend; do
-              current_container=\$(docker compose -f docker-compose.yml ps -q \"\$service\")
-              test -n \"\$current_container\"
-              previous_image=\$(docker inspect --format '{{.Image}}' \"\$current_container\")
-              rollback_tag=\"digital-photo-frame-\$service:rollback-\$rollback_time\"
-              docker image tag \"\$previous_image\" \"\$rollback_tag\"
-              echo \"Rollback image: \$rollback_tag\"
+              current_container=\$(docker compose -f docker-compose.yml ps -q \"\$service\" 2>/dev/null || true)
+              if [ -n \"\$current_container\" ]; then
+                previous_image=\$(docker inspect --format '{{.Image}}' \"\$current_container\")
+                rollback_tag=\"digital-photo-frame-\$service:rollback-\$rollback_time\"
+                docker image tag \"\$previous_image\" \"\$rollback_tag\"
+                echo \"Rollback image: \$rollback_tag\"
+              fi
             done
 
             echo '🔄 Pulling latest Docker images...'
