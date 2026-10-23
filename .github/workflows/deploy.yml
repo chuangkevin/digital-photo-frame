@@ -51,13 +51,12 @@ jobs:
           ssh -i ~/.ssh/deploy_key ${DEPLOY_USER}@${DEPLOY_SERVER_IP} "
             set -e
 
-            case "\$(uname -n)" in
-              NAS-918*|nas-918*|rpi-docker*) ;;
-              *)
-                echo "Unexpected deployment host: \$(uname -n)"
-                exit 1
-                ;;
-            esac
+            HOST=\$(uname -n)
+            echo "Current deployment host: \$HOST"
+            if [ "\$HOST" != "NAS-918" ] && [ "\$HOST" != "rpi-docker" ]; then
+              echo "Unexpected deployment host: \$HOST"
+              exit 1
+            fi
 
             echo '📁 Navigating to deployment directory...'
             cd ${DEPLOY_PATH}
